@@ -6,4 +6,5 @@ import lombok.Data;
 public class SimulacaoRequestDTO {
     private Double valorDesejado;
     private Integer prazo;
+
 }
