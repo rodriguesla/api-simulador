@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class SimulacaoRequestDTO {
-    private Double valorSolicitado;
-    private Integer prazoMeses;
-}
+    private Double valorDesejado;
+    private Integer prazo;
 
+}

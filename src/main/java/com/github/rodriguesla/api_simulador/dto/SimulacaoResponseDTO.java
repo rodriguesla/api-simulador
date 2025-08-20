@@ -1,43 +1,28 @@
 package com.github.rodriguesla.api_simulador.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.util.List;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SimulacaoResponseDTO {
-    private String nomeProduto;
-    private Double valorSolicitado;
-    private Integer prazoMeses;
-    private Double resultadoSac;
-    private Double resultadoPrice;
+    @JsonProperty("idSimulacao")
+    private String idSimulacao;
+    @JsonProperty("codigoProduto")
+    private Integer codigoProduto;
+    @JsonProperty("descricaoProduto")
+    private String descricaoProduto;
+    @JsonProperty("taxaJuros")
+    private Double taxaJuros;
+    @JsonProperty("resultadoSimulacao")
+    private List<TipoSimulacaoDTO> resultadoSimulacao;
 
-    public SimulacaoResponseDTO() {}
-    public SimulacaoResponseDTO(String nomeProduto, Double valorSolicitado, Integer prazoMeses, Double resultadoSac, Double resultadoPrice) {
-        this.nomeProduto = nomeProduto;
-        this.valorSolicitado = valorSolicitado;
-        this.prazoMeses = prazoMeses;
-        this.resultadoSac = resultadoSac;
-        this.resultadoPrice = resultadoPrice;
-    }
-    public String getNomeProduto() { return nomeProduto; }
-    public void setNomeProduto(String nomeProduto) { this.nomeProduto = nomeProduto; }
-    public Double getValorSolicitado() { return valorSolicitado; }
-    public void setValorSolicitado(Double valorSolicitado) { this.valorSolicitado = valorSolicitado; }
-    public Integer getPrazoMeses() { return prazoMeses; }
-    public void setPrazoMeses(Integer prazoMeses) { this.prazoMeses = prazoMeses; }
-    public Double getResultadoSac() { return resultadoSac; }
-    public void setResultadoSac(Double resultadoSac) { this.resultadoSac = resultadoSac; }
-    public Double getResultadoPrice() { return resultadoPrice; }
-    public void setResultadoPrice(Double resultadoPrice) { this.resultadoPrice = resultadoPrice; }
-
-    public static Builder builder() { return new Builder(); }
-    public static class Builder {
-        private String nomeProduto;
-        private Double valorSolicitado;
-        private Integer prazoMeses;
-        private Double resultadoSac;
-        private Double resultadoPrice;
-        public Builder nomeProduto(String nomeProduto) { this.nomeProduto = nomeProduto; return this; }
-        public Builder valorSolicitado(Double valorSolicitado) { this.valorSolicitado = valorSolicitado; return this; }
-        public Builder prazoMeses(Integer prazoMeses) { this.prazoMeses = prazoMeses; return this; }
-        public Builder resultadoSac(Double resultadoSac) { this.resultadoSac = resultadoSac; return this; }
-        public Builder resultadoPrice(Double resultadoPrice) { this.resultadoPrice = resultadoPrice; return this; }
-        public SimulacaoResponseDTO build() { return new SimulacaoResponseDTO(nomeProduto, valorSolicitado, prazoMeses, resultadoSac, resultadoPrice); }
-    }
 }

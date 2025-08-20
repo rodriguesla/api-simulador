@@ -23,14 +23,18 @@ public class EventHubProducerService {
     }
 
     public void sendSimulation(SimulacaoResponseDTO simulacao) {
-        try {
-            String json = objectMapper.writeValueAsString(simulacao);
-            EventData eventData = new EventData(json);
-            producerClient.send(java.util.Collections.singletonList(eventData));
-        } catch (Exception e) {
-            // Log error (could use a logger here)
-            System.err.println("Failed to send event to EventHub: " + e.getMessage());
-        }
+        // Bypass Event Hub sending for now
+//        return;
+        // Original code below (kept for reference)
+
+    try {
+        String json = objectMapper.writeValueAsString(simulacao);
+        EventData eventData = new EventData(json);
+        producerClient.send(java.util.Collections.singletonList(eventData));
+    } catch (Exception e) {
+        System.err.println("Failed to send event to EventHub: " + e.getMessage());
+    }
+
     }
 
     public void close() {
