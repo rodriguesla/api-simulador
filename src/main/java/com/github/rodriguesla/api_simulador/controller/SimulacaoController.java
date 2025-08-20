@@ -1,18 +1,17 @@
 package com.github.rodriguesla.api_simulador.controller;
 
 import com.github.rodriguesla.api_simulador.dto.*;
-import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
-import com.github.rodriguesla.api_simulador.exception.ValorOuPrazoDesejadoInvalidoException;
 import com.github.rodriguesla.api_simulador.mapper.SimulacaoMapper;
 import com.github.rodriguesla.api_simulador.produto.model.Produto;
 import com.github.rodriguesla.api_simulador.service.SimulacaoService;
 import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
 import com.github.rodriguesla.api_simulador.simulacao.repository.SimulacaoRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +28,7 @@ import java.util.stream.Collectors;
 public class SimulacaoController {
     private final SimulacaoService simulacaoService;
     private final SimulacaoRepository simulacaoRepository;
+    private final MeterRegistry meterRegistry;
 
     @Operation(summary = "Realiza uma simulação de crédito", description = "Recebe um envelope JSON, valida, calcula SAC/PRICE, persiste e retorna o resultado.")
     @ApiResponses({
@@ -84,31 +84,8 @@ public class SimulacaoController {
 
     @Operation(summary = "Retorna dados de telemetria (volumes e tempos de resposta)")
     @GetMapping("/telemetria")
-    public ResponseEntity<?> telemetria() {
-        // Use Spring Actuator for real metrics; here is a stub
-        long total = simulacaoRepository.count();
-        return ResponseEntity.ok("Total de simulações: " + total);
-    }
-
-    @ExceptionHandler(ValorOuPrazoDesejadoInvalidoException.class)
-    public ResponseEntity<Object> handleValorOuPrazoDesejadoInvalidoException(ValorOuPrazoDesejadoInvalidoException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new java.util.HashMap<String, Object>() {{
-                    put("erro", "InvalidValueOrTerm");
-                    put("mensagem", ex.getMessage());
-                    put("codigo", 400);
-                }}
-        );
-    }
-
-    @ExceptionHandler(RequisicaoInvalidaException.class)
-    public ResponseEntity<Object> handleRequisicaoInvalida(RequisicaoInvalidaException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new java.util.HashMap<String, Object>() {{
-                    put("erro", "RequisicaoInvalida");
-                    put("mensagem", ex.getMessage());
-                    put("codigo", 400);
-                }}
-        );
+    public ResponseEntity<TelemetriaResponseDTO> telemetria() {
+        TelemetriaResponseDTO response = simulacaoService.getTelemetria(meterRegistry);
+        return ResponseEntity.ok(response);
     }
 }

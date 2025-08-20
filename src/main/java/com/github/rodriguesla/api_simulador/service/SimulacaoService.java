@@ -1,9 +1,6 @@
 package com.github.rodriguesla.api_simulador.service;
 
-import com.github.rodriguesla.api_simulador.dto.ParcelaDTO;
-import com.github.rodriguesla.api_simulador.dto.SimulacaoRequestDTO;
-import com.github.rodriguesla.api_simulador.dto.SimulacaoResponseDTO;
-import com.github.rodriguesla.api_simulador.dto.TipoSimulacaoDTO;
+import com.github.rodriguesla.api_simulador.dto.*;
 import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
 import com.github.rodriguesla.api_simulador.exception.ValorOuPrazoDesejadoInvalidoException;
 import com.github.rodriguesla.api_simulador.producer.EventHubProducer;
@@ -11,15 +8,20 @@ import com.github.rodriguesla.api_simulador.produto.model.Produto;
 import com.github.rodriguesla.api_simulador.produto.repository.ProdutoRepository;
 import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
 import com.github.rodriguesla.api_simulador.simulacao.repository.SimulacaoRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,7 +44,7 @@ public class SimulacaoService {
 
         if (request.getValorDesejado() == null || request.getPrazo() == null) {
             logger.error("Parâmetros inválidos: valorDesejado ou prazo nulos");
-            throw new RequisicaoInvalidaException("valorDesejado e prazo nao podem ser nulos ou vazios.");
+            throw new RequisicaoInvalidaException("valorDesejado e prazo não podem ser nulos ou vazios.");
         }
 
         BigDecimal valorDesejado = BigDecimal.valueOf(request.getValorDesejado()).setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -182,7 +184,7 @@ public class SimulacaoService {
         logger.info("Listando simulações: página={}, quantidade por página={}", pagina, qtdRegistrosPagina);
 
         if (pagina < 1) pagina = 1;
-        if (qtdRegistrosPagina < 1) qtdRegistrosPagina = 20; // or any default
+        if (qtdRegistrosPagina < 1) qtdRegistrosPagina = 20;
 
         int offset = (pagina - 1) * qtdRegistrosPagina;
         List<Simulacao> simulacoes = simulacaoRepository.findAll();
@@ -202,5 +204,64 @@ public class SimulacaoService {
         List<Produto> produtos = produtoRepository.findAll();
         logger.info("Total de produtos encontrados: {}", produtos.size());
         return produtos;
+    }
+
+    public TelemetriaResponseDTO getTelemetria(MeterRegistry meterRegistry) {
+        String dataReferencia = LocalDate.now().toString();
+
+        Timer timer = meterRegistry.find("http.server.requests")
+                .tag("uri", "/simulacoes")
+                .timer();
+
+        long qtdRequisicoes = 0;
+        long tempoMedio = 0;
+        long tempoMinimo = 0;
+        long tempoMaximo = 0;
+        double percentualSucesso = 0.0;
+
+        if (timer != null) {
+            qtdRequisicoes = timer.count();
+            tempoMedio = (long) timer.mean(java.util.concurrent.TimeUnit.MILLISECONDS);
+            tempoMaximo = (long) timer.max(java.util.concurrent.TimeUnit.MILLISECONDS);
+
+            double minValue = timer.percentile(0.01, java.util.concurrent.TimeUnit.MILLISECONDS);
+            tempoMinimo = (long) minValue;
+        }
+
+        AtomicReference<Double> totalRequests = new AtomicReference<>(0.0);
+        AtomicReference<Double> successRequests = new AtomicReference<>(0.0);
+
+        meterRegistry.find("http.server.requests")
+                .tag("uri", "/simulacoes")
+                .meters()
+                .forEach(meter -> {
+                    if (meter instanceof Timer) {
+                        totalRequests.updateAndGet(val -> val + ((Timer) meter).count());
+                        // Check if this timer has a success status (2xx)
+                        String status = meter.getId().getTag("status");
+                        if (status != null && status.startsWith("2")) {
+                            successRequests.updateAndGet(val -> val + ((Timer) meter).count());
+                        }
+                    }
+                });
+
+        if (totalRequests.get() > 0) {
+            percentualSucesso = successRequests.get() / totalRequests.get();
+            qtdRequisicoes = totalRequests.get().longValue();
+        }
+
+        EndpointTelemetriaDTO endpoint = EndpointTelemetriaDTO.builder()
+                .nomeApi("API Simulador")
+                .qtdRequisicoes((int) qtdRequisicoes)
+                .tempoMedio(tempoMedio)
+                .tempoMinimo(tempoMinimo)
+                .tempoMaximo(tempoMaximo)
+                .percentualSucesso(percentualSucesso)
+                .build();
+
+        return TelemetriaResponseDTO.builder()
+                .dataReferencia(dataReferencia)
+                .listaEndpoints(Collections.singletonList(endpoint))
+                .build();
     }
 }
