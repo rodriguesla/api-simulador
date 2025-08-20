@@ -1,6 +1,7 @@
 package com.github.rodriguesla.api_simulador.mapper;
 
 import com.github.rodriguesla.api_simulador.dto.*;
+import com.github.rodriguesla.api_simulador.produto.model.Produto;
 import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,20 +32,30 @@ public class SimulacaoMapper {
                 .build();
     }
 
-    public static SimulacoesPorDiaResponseDTO toSimulacoesPorDiaResponseDTO(String dataReferencia, List<Simulacao> simulacoes) {
-        logger.info("Mapeando {} simulacoes para a data {}", simulacoes.size(), dataReferencia);
+    public static SimulacoesPorDiaResponseDTO toSimulacoesPorDiaResponseDTO(
+            String dataReferencia,
+            List<Simulacao> simulacoes,
+            Map<Integer, Produto> produtoMap) {
 
-        if (simulacoes.isEmpty()) {
-            logger.warn("Simulacoes nao encontradas para a data {}", dataReferencia);
-        }
-        // Group by produtoId
+        logger.info("Mapeando {} simulações para a data {}", simulacoes.size(), dataReferencia);
+
         Map<Integer, List<Simulacao>> byProduto = simulacoes.stream()
                 .collect(Collectors.groupingBy(Simulacao::getProdutoId));
+        logger.debug("Simulações agrupadas por produto: {}", byProduto.keySet());
 
-        List<SimulacaoPorDiaProdutoDTO> simulacoesPorProduto = byProduto.values().stream()
-                .map(list -> {
-                    Simulacao first = list.get(0);
-                    // You can only use produtoId here
+        List<SimulacaoPorDiaProdutoDTO> simulacoesPorProduto = byProduto.entrySet().stream()
+                .map(entry -> {
+                    Integer produtoId = entry.getKey();
+                    List<Simulacao> list = entry.getValue();
+                    logger.debug("Mapeando produtoId {} com {} simulações", produtoId, list.size());
+
+                    Produto produto = produtoMap.get(produtoId);
+                    if (produto == null) {
+                        logger.warn("Produto não encontrado para produtoId {}", produtoId);
+                    } else {
+                        logger.debug("Produto encontrado: {} (taxaJuros: {})", produto.getNome(), produto.getTaxaJuros());
+                    }
+
                     BigDecimal valorMedioPrestacao = BigDecimal.valueOf(
                             list.stream()
                                     .mapToDouble(s -> (s.getResultadoSac() + s.getResultadoPrice()) / 2)
@@ -61,15 +72,22 @@ public class SimulacaoMapper {
                                     .mapToDouble(s -> s.getResultadoSac() + s.getResultadoPrice())
                                     .sum()
                     );
+
+                    logger.info("ProdutoId {}: valorMedioPrestacao={}, valorTotalDesejado={}, valorTotalCredito={}",
+                            produtoId, valorMedioPrestacao, valorTotalDesejado, valorTotalCredito);
+
                     return SimulacaoPorDiaProdutoDTO.builder()
-                            .codigoProduto(first.getProdutoId() != null ? first.getProdutoId().longValue() : null)
-                            // descricaoProduto and taxaMediaJuro cannot be set here without Produto details
+                            .codigoProduto(produtoId != null ? produtoId.longValue() : null)
+                            .descricaoProduto(produto != null ? produto.getNome() : null)
+                            .taxaMediaJuro(produto != null ? produto.getTaxaJuros() : null)
                             .valorMedioPrestacao(valorMedioPrestacao)
                             .valorTotalDesejado(valorTotalDesejado)
                             .valorTotalCredito(valorTotalCredito)
                             .build();
                 })
                 .collect(Collectors.toList());
+
+        logger.info("Mapeamento finalizado. Retornando DTO com {} produtos", simulacoesPorProduto.size());
 
         return SimulacoesPorDiaResponseDTO.builder()
                 .dataReferencia(dataReferencia)

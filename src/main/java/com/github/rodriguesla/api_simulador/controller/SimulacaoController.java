@@ -1,7 +1,10 @@
 package com.github.rodriguesla.api_simulador.controller;
 
 import com.github.rodriguesla.api_simulador.dto.*;
+import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
+import com.github.rodriguesla.api_simulador.exception.ValorOuPrazoDesejadoInvalidoException;
 import com.github.rodriguesla.api_simulador.mapper.SimulacaoMapper;
+import com.github.rodriguesla.api_simulador.produto.model.Produto;
 import com.github.rodriguesla.api_simulador.service.SimulacaoService;
 import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
 import com.github.rodriguesla.api_simulador.simulacao.repository.SimulacaoRepository;
@@ -9,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,16 +33,16 @@ public class SimulacaoController {
     @Operation(summary = "Realiza uma simulação de crédito", description = "Recebe um envelope JSON, valida, calcula SAC/PRICE, persiste e retorna o resultado.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Simulação realizada com sucesso"),
-            @ApiResponse(responseCode = "400", description = "Dados inválidos ou produto não encontrado")
+            @ApiResponse(responseCode = "400", description = "Requisição inválida"),
+            @ApiResponse(responseCode = "401", description = "Não autorizado"),
+            @ApiResponse(responseCode = "403", description = "Proibido"),
+            @ApiResponse(responseCode = "404", description = "Não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
     @PostMapping
     public ResponseEntity<?> simular(@RequestBody SimulacaoRequestDTO request) {
-        Optional<SimulacaoResponseDTO> response = simulacaoService.simular(request);
-        if (response.isPresent()) {
-            return ResponseEntity.ok(response.get());
-        } else {
-            return ResponseEntity.badRequest().body("Nenhum produto encontrado para os parâmetros informados.");
-        }
+        List<SimulacaoResponseDTO> responses = simulacaoService.simular(request);
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Lista todas as simulações realizadas")
@@ -70,7 +74,12 @@ public class SimulacaoController {
         LocalDateTime start = dia.atStartOfDay();
         LocalDateTime end = dia.atTime(LocalTime.MAX);
         List<Simulacao> simulacoes = simulacaoRepository.findByDataSimulacaoBetween(start, end);
-        return SimulacaoMapper.toSimulacoesPorDiaResponseDTO(data, simulacoes);
+
+        List<Produto> produtos = simulacaoService.buscarTodosProdutos();
+        Map<Integer, Produto> produtoMap = produtos.stream()
+                .collect(Collectors.toMap(Produto::getId, p -> p));
+
+        return SimulacaoMapper.toSimulacoesPorDiaResponseDTO(data, simulacoes, produtoMap);
     }
 
     @Operation(summary = "Retorna dados de telemetria (volumes e tempos de resposta)")
@@ -79,5 +88,27 @@ public class SimulacaoController {
         // Use Spring Actuator for real metrics; here is a stub
         long total = simulacaoRepository.count();
         return ResponseEntity.ok("Total de simulações: " + total);
+    }
+
+    @ExceptionHandler(ValorOuPrazoDesejadoInvalidoException.class)
+    public ResponseEntity<Object> handleValorOuPrazoDesejadoInvalidoException(ValorOuPrazoDesejadoInvalidoException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new java.util.HashMap<String, Object>() {{
+                    put("erro", "InvalidValueOrTerm");
+                    put("mensagem", ex.getMessage());
+                    put("codigo", 400);
+                }}
+        );
+    }
+
+    @ExceptionHandler(RequisicaoInvalidaException.class)
+    public ResponseEntity<Object> handleRequisicaoInvalida(RequisicaoInvalidaException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                new java.util.HashMap<String, Object>() {{
+                    put("erro", "RequisicaoInvalida");
+                    put("mensagem", ex.getMessage());
+                    put("codigo", 400);
+                }}
+        );
     }
 }
