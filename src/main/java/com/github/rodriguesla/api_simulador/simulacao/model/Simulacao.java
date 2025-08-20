@@ -1,7 +1,6 @@
-package com.github.rodriguesla.api_simulador.model;
+package com.github.rodriguesla.api_simulador.simulacao.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -10,10 +9,7 @@ public class Simulacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "produto_id")
-    private Produto produto;
-
+    private Integer produtoId;
     private Double valorDesejado;
     private Integer prazo;
     private Double resultadoSac;
@@ -23,9 +19,9 @@ public class Simulacao {
 
     public Simulacao() {}
 
-    public Simulacao(Long id, Produto produto, Double valorDesejado, Integer prazo, Double resultadoSac, Double resultadoPrice, LocalDateTime dataSimulacao, String envelopeJson) {
+    public Simulacao(Long id, Integer produtoId, Double valorDesejado, Integer prazo, Double resultadoSac, Double resultadoPrice, LocalDateTime dataSimulacao, String envelopeJson) {
         this.id = id;
-        this.produto = produto;
+        this.produtoId = produtoId;
         this.valorDesejado = valorDesejado;
         this.prazo = prazo;
         this.resultadoSac = resultadoSac;
@@ -36,8 +32,8 @@ public class Simulacao {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public Produto getProduto() { return produto; }
-    public void setProduto(Produto produto) { this.produto = produto; }
+    public Integer getProdutoId() { return produtoId; }
+    public void setProdutoId(Integer produtoId) { this.produtoId = produtoId; }
     public Double getValorDesejado() { return valorDesejado; }
     public void setValorDesejado(Double valorDesejado) { this.valorDesejado = valorDesejado; }
     public Integer getPrazo() { return prazo; }
@@ -54,7 +50,7 @@ public class Simulacao {
     public static Builder builder() { return new Builder(); }
     public static class Builder {
         private Long id;
-        private Produto produto;
+        private Integer produtoId;
         private Double valorDesejado;
         private Integer prazo;
         private Double resultadoSac;
@@ -63,7 +59,7 @@ public class Simulacao {
         private String envelopeJson;
 
         public Builder id(Long id) { this.id = id; return this; }
-        public Builder produto(Produto produto) { this.produto = produto; return this; }
+        public Builder produtoId(Integer produtoId) { this.produtoId = produtoId; return this; }
         public Builder valorDesejado(Double valorDesejado) { this.valorDesejado = valorDesejado; return this; }
         public Builder prazo(Integer prazo) { this.prazo = prazo; return this; }
         public Builder resultadoSac(Double resultadoSac) { this.resultadoSac = resultadoSac; return this; }
@@ -71,7 +67,7 @@ public class Simulacao {
         public Builder dataSimulacao(LocalDateTime dataSimulacao) { this.dataSimulacao = dataSimulacao; return this; }
         public Builder envelopeJson(String envelopeJson) { this.envelopeJson = envelopeJson; return this; }
         public Simulacao build() {
-            return new Simulacao(id, produto, valorDesejado, prazo, resultadoSac, resultadoPrice, dataSimulacao, envelopeJson);
+            return new Simulacao(id, produtoId, valorDesejado, prazo, resultadoSac, resultadoPrice, dataSimulacao, envelopeJson);
         }
     }
 }

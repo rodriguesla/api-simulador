@@ -2,8 +2,8 @@ package com.github.rodriguesla.api_simulador;
 
 import com.github.rodriguesla.api_simulador.dto.*;
 import com.github.rodriguesla.api_simulador.mapper.SimulacaoMapper;
-import com.github.rodriguesla.api_simulador.model.Simulacao;
-import com.github.rodriguesla.api_simulador.model.SimulacaoRepository;
+import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
+import com.github.rodriguesla.api_simulador.simulacao.repository.SimulacaoRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

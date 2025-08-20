@@ -1,7 +1,7 @@
 package com.github.rodriguesla.api_simulador.mapper;
 
 import com.github.rodriguesla.api_simulador.dto.*;
-import com.github.rodriguesla.api_simulador.model.Simulacao;
+import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,43 +37,33 @@ public class SimulacaoMapper {
         if (simulacoes.isEmpty()) {
             logger.warn("Simulacoes nao encontradas para a data {}", dataReferencia);
         }
-        // Agrupar por ID
-        Map<Long, List<Simulacao>> byProduto = simulacoes.stream()
-                .collect(Collectors.groupingBy(s -> s.getProduto().getId().longValue()));
+        // Group by produtoId
+        Map<Integer, List<Simulacao>> byProduto = simulacoes.stream()
+                .collect(Collectors.groupingBy(Simulacao::getProdutoId));
 
         List<SimulacaoPorDiaProdutoDTO> simulacoesPorProduto = byProduto.values().stream()
                 .map(list -> {
                     Simulacao first = list.get(0);
-                    // Media da taxa de juros
-                    BigDecimal taxaMedia = BigDecimal.valueOf(
-                            list.stream()
-                                    .mapToDouble(s -> s.getProduto().getTaxaJuros().doubleValue())
-                                    .average()
-                                    .orElse(0)
-                    );
-                    // Media do valor das parcelas (para o SAC e PRICE)
+                    // You can only use produtoId here
                     BigDecimal valorMedioPrestacao = BigDecimal.valueOf(
                             list.stream()
                                     .mapToDouble(s -> (s.getResultadoSac() + s.getResultadoPrice()) / 2)
                                     .average()
                                     .orElse(0)
                     );
-                    // Valor total
                     BigDecimal valorTotalDesejado = BigDecimal.valueOf(
                             list.stream()
                                     .mapToDouble(Simulacao::getValorDesejado)
                                     .sum()
                     );
-                    // Total do valor de credito (soma de SAC e PRICE)
                     BigDecimal valorTotalCredito = BigDecimal.valueOf(
                             list.stream()
                                     .mapToDouble(s -> s.getResultadoSac() + s.getResultadoPrice())
                                     .sum()
                     );
                     return SimulacaoPorDiaProdutoDTO.builder()
-                            .codigoProduto(first.getProduto().getId().longValue())
-                            .descricaoProduto(first.getProduto().getNome())
-                            .taxaMediaJuro(taxaMedia)
+                            .codigoProduto(first.getProdutoId() != null ? first.getProdutoId().longValue() : null)
+                            // descricaoProduto and taxaMediaJuro cannot be set here without Produto details
                             .valorMedioPrestacao(valorMedioPrestacao)
                             .valorTotalDesejado(valorTotalDesejado)
                             .valorTotalCredito(valorTotalCredito)

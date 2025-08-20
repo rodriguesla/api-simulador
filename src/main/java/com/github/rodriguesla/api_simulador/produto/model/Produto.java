@@ -1,10 +1,10 @@
-package com.github.rodriguesla.api_simulador.model;
+package com.github.rodriguesla.api_simulador.produto.model;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "PRODUTO")
+@Table(name = "PRODUTO", schema = "dbo")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

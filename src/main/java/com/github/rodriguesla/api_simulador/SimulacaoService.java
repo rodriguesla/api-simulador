@@ -4,10 +4,10 @@ import com.github.rodriguesla.api_simulador.dto.ParcelaDTO;
 import com.github.rodriguesla.api_simulador.dto.SimulacaoRequestDTO;
 import com.github.rodriguesla.api_simulador.dto.SimulacaoResponseDTO;
 import com.github.rodriguesla.api_simulador.dto.TipoSimulacaoDTO;
-import com.github.rodriguesla.api_simulador.model.Produto;
-import com.github.rodriguesla.api_simulador.model.ProdutoRepository;
-import com.github.rodriguesla.api_simulador.model.Simulacao;
-import com.github.rodriguesla.api_simulador.model.SimulacaoRepository;
+import com.github.rodriguesla.api_simulador.produto.model.Produto;
+import com.github.rodriguesla.api_simulador.produto.repository.ProdutoRepository;
+import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
+import com.github.rodriguesla.api_simulador.simulacao.repository.SimulacaoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class SimulacaoService {
@@ -27,13 +26,13 @@ public class SimulacaoService {
 
     private final ProdutoRepository produtoRepository;
     private final SimulacaoRepository simulacaoRepository;
-//    private final EventHubProducerService eventHubProducerService;
+    private final EventHubProducerService eventHubProducerService;
 
-    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository
+    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubProducerService eventHubProducerService
                             ) {
         this.produtoRepository = produtoRepository;
         this.simulacaoRepository = simulacaoRepository;
-//        this.eventHubProducerService = eventHubProducerService;
+        this.eventHubProducerService = eventHubProducerService;
     }
 
     public Optional<SimulacaoResponseDTO> simular(SimulacaoRequestDTO request) {
@@ -59,7 +58,7 @@ public class SimulacaoService {
 
         // Persiste simulacao
         Simulacao simulacao = Simulacao.builder()
-                .produto(produto)
+                .produtoId(produto.getId()) // <-- use produtoId instead of produto
                 .valorDesejado(valorDesejado.doubleValue())
                 .prazo(prazo.intValue())
                 .resultadoSac(sacParcelas.stream().mapToDouble(ParcelaDTO::getValorPrestacao).sum())
@@ -93,7 +92,7 @@ public class SimulacaoService {
                 .build();
 
         // Envia para EventHub
-//        eventHubProducerService.sendSimulation(responseDTO);
+        eventHubProducerService.sendSimulation(responseDTO);
 
         return Optional.of(responseDTO);
     }
