@@ -2,6 +2,7 @@ package com.github.rodriguesla.api_simulador.dto;
 
 import lombok.Builder;
 import lombok.Data;
+
 import java.math.BigDecimal;
 
 @Data

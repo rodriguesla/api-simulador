@@ -1,6 +1,9 @@
 package com.github.rodriguesla.api_simulador.mapper;
 
-import com.github.rodriguesla.api_simulador.dto.*;
+import com.github.rodriguesla.api_simulador.dto.SimulacaoPorDiaProdutoDTO;
+import com.github.rodriguesla.api_simulador.dto.SimulacaoRegistroDTO;
+import com.github.rodriguesla.api_simulador.dto.SimulacoesPorDiaResponseDTO;
+import com.github.rodriguesla.api_simulador.dto.ValorTotalParcelasDTO;
 import com.github.rodriguesla.api_simulador.produto.model.Produto;
 import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
 import org.slf4j.Logger;
