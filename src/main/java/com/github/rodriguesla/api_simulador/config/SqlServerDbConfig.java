@@ -17,7 +17,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.github.rodriguesla.api_simulador.produto.repository",
+        basePackages = "com.github.rodriguesla.api_simulador.entities.produto.repository",
         entityManagerFactoryRef = "produtoEntityManager",
         transactionManagerRef = "produtoTransactionManager"
 )
@@ -35,7 +35,7 @@ public class SqlServerDbConfig {
             EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(produtoDataSource())
-                .packages("com.github.rodriguesla.api_simulador.produto.model")
+                .packages("com.github.rodriguesla.api_simulador.entities.produto.model")
                 .persistenceUnit("produto")
                 .build();
     }

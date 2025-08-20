@@ -4,8 +4,8 @@ import com.github.rodriguesla.api_simulador.dto.SimulacaoPorDiaProdutoDTO;
 import com.github.rodriguesla.api_simulador.dto.SimulacaoRegistroDTO;
 import com.github.rodriguesla.api_simulador.dto.SimulacoesPorDiaResponseDTO;
 import com.github.rodriguesla.api_simulador.dto.ValorTotalParcelasDTO;
-import com.github.rodriguesla.api_simulador.produto.model.Produto;
-import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
+import com.github.rodriguesla.api_simulador.entities.produto.model.Produto;
+import com.github.rodriguesla.api_simulador.entities.simulacao.model.Simulacao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

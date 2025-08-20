@@ -4,10 +4,10 @@ import com.github.rodriguesla.api_simulador.dto.*;
 import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
 import com.github.rodriguesla.api_simulador.exception.ValorOuPrazoDesejadoInvalidoException;
 import com.github.rodriguesla.api_simulador.producer.EventHubProducer;
-import com.github.rodriguesla.api_simulador.produto.model.Produto;
-import com.github.rodriguesla.api_simulador.produto.repository.ProdutoRepository;
-import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
-import com.github.rodriguesla.api_simulador.simulacao.repository.SimulacaoRepository;
+import com.github.rodriguesla.api_simulador.entities.produto.model.Produto;
+import com.github.rodriguesla.api_simulador.entities.produto.repository.ProdutoRepository;
+import com.github.rodriguesla.api_simulador.entities.simulacao.model.Simulacao;
+import com.github.rodriguesla.api_simulador.entities.simulacao.repository.SimulacaoRepository;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
@@ -49,6 +49,10 @@ public class SimulacaoService {
 
         BigDecimal valorDesejado = BigDecimal.valueOf(request.getValorDesejado()).setScale(2, BigDecimal.ROUND_HALF_UP);
         int prazo = request.getPrazo().shortValue();
+        if (prazo < 1) {
+            logger.error("Prazo inválido: deve ser maior ou igual a 1");
+            throw new ValorOuPrazoDesejadoInvalidoException("Prazo deve ser maior ou igual a 1.");
+        }
 
         List<Produto> produtos = produtoRepository.findAll();
         logger.debug("Produtos carregados do banco: {}", produtos);
@@ -207,6 +211,7 @@ public class SimulacaoService {
     }
 
     public TelemetriaResponseDTO getTelemetria(MeterRegistry meterRegistry) {
+        logger.info("Iniciando cálculo de telemetria para o endpoint /simulacoes.");
         String dataReferencia = LocalDate.now().toString();
 
         Timer timer = meterRegistry.find("http.server.requests")
@@ -220,12 +225,16 @@ public class SimulacaoService {
         double percentualSucesso = 0.0;
 
         if (timer != null) {
+            logger.debug("Timer encontrado para /simulacoes.");
             qtdRequisicoes = timer.count();
             tempoMedio = (long) timer.mean(java.util.concurrent.TimeUnit.MILLISECONDS);
             tempoMaximo = (long) timer.max(java.util.concurrent.TimeUnit.MILLISECONDS);
 
             double minValue = timer.percentile(0.01, java.util.concurrent.TimeUnit.MILLISECONDS);
             tempoMinimo = (long) minValue;
+            logger.debug("Valores calculados: qtdRequisicoes={}, tempoMedio={}, tempoMinimo={}, tempoMaximo={}", qtdRequisicoes, tempoMedio, tempoMinimo, tempoMaximo);
+        } else {
+            logger.warn("Nenhum timer encontrado para /simulacoes.");
         }
 
         AtomicReference<Double> totalRequests = new AtomicReference<>(0.0);
@@ -237,7 +246,6 @@ public class SimulacaoService {
                 .forEach(meter -> {
                     if (meter instanceof Timer) {
                         totalRequests.updateAndGet(val -> val + ((Timer) meter).count());
-                        // Check if this timer has a success status (2xx)
                         String status = meter.getId().getTag("status");
                         if (status != null && status.startsWith("2")) {
                             successRequests.updateAndGet(val -> val + ((Timer) meter).count());
@@ -248,6 +256,7 @@ public class SimulacaoService {
         if (totalRequests.get() > 0) {
             percentualSucesso = successRequests.get() / totalRequests.get();
             qtdRequisicoes = totalRequests.get().longValue();
+            logger.debug("Taxa de sucesso calculada: {}", percentualSucesso);
         }
 
         EndpointTelemetriaDTO endpoint = EndpointTelemetriaDTO.builder()
@@ -258,6 +267,8 @@ public class SimulacaoService {
                 .tempoMaximo(tempoMaximo)
                 .percentualSucesso(percentualSucesso)
                 .build();
+
+        logger.info("DTO de telemetria pronto: {}", endpoint);
 
         return TelemetriaResponseDTO.builder()
                 .dataReferencia(dataReferencia)

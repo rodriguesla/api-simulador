@@ -1,6 +1,6 @@
-package com.github.rodriguesla.api_simulador.simulacao.repository;
+package com.github.rodriguesla.api_simulador.entities.simulacao.repository;
 
-import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
+import com.github.rodriguesla.api_simulador.entities.simulacao.model.Simulacao;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;

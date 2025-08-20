@@ -1,4 +1,4 @@
-package com.github.rodriguesla.api_simulador.simulacao.model;
+package com.github.rodriguesla.api_simulador.entities.simulacao.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

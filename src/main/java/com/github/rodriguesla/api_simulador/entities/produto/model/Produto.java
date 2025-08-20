@@ -1,4 +1,4 @@
-package com.github.rodriguesla.api_simulador.produto.model;
+package com.github.rodriguesla.api_simulador.entities.produto.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
