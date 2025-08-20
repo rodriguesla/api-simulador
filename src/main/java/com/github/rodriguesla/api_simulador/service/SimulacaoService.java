@@ -133,6 +133,9 @@ public class SimulacaoService {
     }
 
     private List<ParcelaDTO> calcularSacParcelas(BigDecimal valor, BigDecimal taxa, Short prazo) {
+        if (prazo == null || prazo <= 0) {
+            throw new ValorOuPrazoDesejadoInvalidoException("Prazo deve ser positivo.");
+        }
         logger.info("Calculando parcelas SAC: valor={}, taxa={}, prazo={}", valor, taxa, prazo);
 
         List<ParcelaDTO> parcelas = new ArrayList<>();
@@ -157,6 +160,9 @@ public class SimulacaoService {
     }
 
     private List<ParcelaDTO> calcularPriceParcelas(BigDecimal valor, BigDecimal taxa, Short prazo) {
+        if (prazo == null || prazo <= 0) {
+            throw new ValorOuPrazoDesejadoInvalidoException("Prazo deve ser positivo.");
+        }
         logger.info("Calculando parcelas PRICE: valor={}, taxa={}, prazo={}", valor, taxa, prazo);
 
         List<ParcelaDTO> parcelas = new ArrayList<>();

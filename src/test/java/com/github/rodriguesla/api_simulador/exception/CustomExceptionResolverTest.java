@@ -1,0 +1,77 @@
+// src/test/java/com/github/rodriguesla/api_simulador/exception/CustomExceptionResolverTest.java
+package com.github.rodriguesla.api_simulador.exception;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.web.servlet.NoHandlerFoundException;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+
+class CustomExceptionResolverTest {
+
+    private CustomExceptionResolver resolver;
+    private HttpServletRequest request;
+    private HttpServletResponse response;
+    private StringWriter responseWriter;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        resolver = new CustomExceptionResolver();
+        request = mock(HttpServletRequest.class);
+        response = mock(HttpServletResponse.class);
+        responseWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(responseWriter);
+        when(response.getWriter()).thenReturn(printWriter);
+    }
+
+    @Test
+    void testValorOuPrazoDesejadoInvalidoException() throws Exception {
+        Exception ex = new ValorOuPrazoDesejadoInvalidoException("Valor inválido");
+        resolver.resolveException(request, response, null, ex);
+        verify(response).setStatus(400);
+        assertTrue(responseWriter.toString().contains("\"erro\":\"ValorInvalido\""));
+        assertTrue(responseWriter.toString().contains("\"mensagem\":\"Valor inválido\""));
+    }
+
+    @Test
+    void testRequisicaoInvalidaException() throws Exception {
+        Exception ex = new RequisicaoInvalidaException("Requisição inválida");
+        resolver.resolveException(request, response, null, ex);
+        verify(response).setStatus(400);
+        assertTrue(responseWriter.toString().contains("\"erro\":\"RequisicaoInvalida\""));
+        assertTrue(responseWriter.toString().contains("\"mensagem\":\"Requisição inválida\""));
+    }
+
+    @Test
+    void testAcessoNegadoException() throws Exception {
+        Exception ex = new AcessoNegadoException("Acesso negado");
+        resolver.resolveException(request, response, null, ex);
+        verify(response).setStatus(403);
+        assertTrue(responseWriter.toString().contains("\"erro\":\"Proibido\""));
+        assertTrue(responseWriter.toString().contains("\"mensagem\":\"Acesso negado.\""));
+    }
+
+    @Test
+    void testNoHandlerFoundException() throws Exception {
+        Exception ex = new NoHandlerFoundException("GET", "/notfound", null);
+        resolver.resolveException(request, response, null, ex);
+        verify(response).setStatus(404);
+        assertTrue(responseWriter.toString().contains("\"erro\":\"NaoEncontrado\""));
+        assertTrue(responseWriter.toString().contains("\"mensagem\":\"Recurso não encontrado.\""));
+    }
+
+    @Test
+    void testGenericException() throws Exception {
+        Exception ex = new RuntimeException("Erro genérico");
+        resolver.resolveException(request, response, null, ex);
+        verify(response).setStatus(500);
+        assertTrue(responseWriter.toString().contains("\"erro\":\"ErroInterno\""));
+        assertTrue(responseWriter.toString().contains("\"mensagem\":\"Erro interno do servidor.\""));
+    }
+}
