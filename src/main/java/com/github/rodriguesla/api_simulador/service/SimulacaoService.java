@@ -1,9 +1,10 @@
-package com.github.rodriguesla.api_simulador;
+package com.github.rodriguesla.api_simulador.service;
 
 import com.github.rodriguesla.api_simulador.dto.ParcelaDTO;
 import com.github.rodriguesla.api_simulador.dto.SimulacaoRequestDTO;
 import com.github.rodriguesla.api_simulador.dto.SimulacaoResponseDTO;
 import com.github.rodriguesla.api_simulador.dto.TipoSimulacaoDTO;
+import com.github.rodriguesla.api_simulador.producer.EventHubProducer;
 import com.github.rodriguesla.api_simulador.produto.model.Produto;
 import com.github.rodriguesla.api_simulador.produto.repository.ProdutoRepository;
 import com.github.rodriguesla.api_simulador.simulacao.model.Simulacao;
@@ -26,13 +27,13 @@ public class SimulacaoService {
 
     private final ProdutoRepository produtoRepository;
     private final SimulacaoRepository simulacaoRepository;
-    private final EventHubProducerService eventHubProducerService;
+    private final EventHubProducer eventHubProducer;
 
-    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubProducerService eventHubProducerService
+    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubProducer eventHubProducer
                             ) {
         this.produtoRepository = produtoRepository;
         this.simulacaoRepository = simulacaoRepository;
-        this.eventHubProducerService = eventHubProducerService;
+        this.eventHubProducer = eventHubProducer;
     }
 
     public Optional<SimulacaoResponseDTO> simular(SimulacaoRequestDTO request) {
@@ -92,7 +93,7 @@ public class SimulacaoService {
                 .build();
 
         // Envia para EventHub
-        eventHubProducerService.sendSimulation(responseDTO);
+        eventHubProducer.sendSimulation(responseDTO);
 
         return Optional.of(responseDTO);
     }

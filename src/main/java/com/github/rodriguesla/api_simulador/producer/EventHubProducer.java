@@ -1,4 +1,4 @@
-package com.github.rodriguesla.api_simulador;
+package com.github.rodriguesla.api_simulador.producer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.rodriguesla.api_simulador.dto.SimulacaoResponseDTO;
@@ -9,11 +9,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EventHubProducerService {
+public class EventHubProducer {
     private final EventHubProducerClient producerClient;
     private final ObjectMapper objectMapper;
 
-    public EventHubProducerService(
+    public EventHubProducer(
             @Value("${azure.eventhub.connection-string}") String connectionString,
             @Value("${azure.eventhub.entity-path}") String entityPath) {
         this.producerClient = new EventHubClientBuilder()
