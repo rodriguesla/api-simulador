@@ -42,9 +42,9 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
    mvn spring-boot:run
    ```
 5. **Endpoint Público:**
-   `A API está disponível publicamente em:
+   A API está disponível publicamente em:
 
-- http://18.231.5.162:8080
+- http://18.230.17.128/:8080
 
    Qualquer pessoa pode acessar este endpoint, desde que as regras de segurança estejam configuradas corretamente na instância EC2.
 
