@@ -25,6 +25,7 @@ public class OpenApiConfig {
                                 .name("Caixa Econômica Federal")
                                 .url("https://www.caixa.gov.br"))
                 )
-                .addServersItem(new Server().url("http://localhost:8080").description("Servidor Local"));
+                .addServersItem(new Server().url("http://localhost:8080").description("Servidor Local"))
+                .addServersItem(new Server().url("http://18.230.17.128:8080").description("Servidor Público"));
     }
 }
