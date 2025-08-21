@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "87773102-7ec1-4886-8f07-33706cd3ddb1",
+		"name": "Hackaton 2025",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "39619773",
+		"_collection_link": "https://hackaton-7596.postman.co/workspace/Hackaton~c1174bbb-c28c-4fe1-86cf-bcd33df19107/collection/39619773-87773102-7ec1-4886-8f07-33706cd3ddb1?action=share&source=collection_link&creator=39619773"
+	},
+	"item": [
+		{
+			"name": "Realiza uma simulação de crédito",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"valorDesejado\": 900,\r\n  \"prazo\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{localHost}}/simulacoes"
+			},
+			"response": []
+		},
+		{
+			"name": "Lista todas as simulações realizadas",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{localHost}}/simulacoes"
+			},
+			"response": []
+		},
+		{
+			"name": "Retorna valores simulados por produto em cada dia",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{localHost}}/simulacoes/por-dia?data=2025-08-20",
+					"host": [
+						"{{localHost}}"
+					],
+					"path": [
+						"simulacoes",
+						"por-dia"
+					],
+					"query": [
+						{
+							"key": "data",
+							"value": "2025-08-20"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retorna dados de telemetria",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{localHost}}/simulacoes/telemetria"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "localHost",
+			"value": ""
+		}
+	]
+}
