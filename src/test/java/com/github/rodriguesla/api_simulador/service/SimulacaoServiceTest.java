@@ -317,6 +317,14 @@ class SimulacaoServiceTest {
 
         SimulacaoService service = new SimulacaoService(null, null, null);
 
+        try {
+            var minElapsedTimeField = SimulacaoService.class.getDeclaredField("minElapsedTime");
+            minElapsedTimeField.setAccessible(true);
+            ((java.util.concurrent.atomic.AtomicLong) minElapsedTimeField.get(service)).set(50);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            fail("Reflection error: " + e.getMessage());
+        }
+
         TelemetriaResponseDTO response = service.getTelemetria(meterRegistry);
 
         assertNotNull(response);

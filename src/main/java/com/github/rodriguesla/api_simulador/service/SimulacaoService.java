@@ -34,7 +34,7 @@ public class SimulacaoService {
     private final EventHubProducer eventHubProducer;
     private final AtomicLong minElapsedTime = new AtomicLong(Long.MAX_VALUE);
 
-    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubProducer eventHubProducer, MeterRegistry meterRegistry
+    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubProducer eventHubProducer
     ) {
         this.produtoRepository = produtoRepository;
         this.simulacaoRepository = simulacaoRepository;
