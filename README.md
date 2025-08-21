@@ -69,7 +69,7 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
 
 ## Pipeline CI/CD
 - Pipeline configurado no GitHub Actions para build e testes automáticos
-- Link: [Pipeline no GitHub](#)
+- Link: [Pipeline no GitHub](https://github.com/rodriguesla/api-simulador/actions/workflows/maven.yml)
 
 ## Diagrama de Arquitetura
 ![Diagrama de Arquitetura](docs/diagrama-arquitetura.png)
