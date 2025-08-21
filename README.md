@@ -31,7 +31,7 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
    - JDK 21+
    - Maven
 2. **Configuração:**
-   - Configure as variáveis de ambiente no `application.properties` para acesso ao SQL Server e EventHub
+   - Variáveis de ambiente no já estipuladas no `application.properties` para acesso ao SQL Server e EventHub
 3. **Execução via Docker Compose:**
    ```bash
    docker-compose up --build
@@ -41,6 +41,19 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
    ```bash
    mvn spring-boot:run
    ```
+5. **Endpoint Público:**
+   `A API está disponível publicamente em:
+
+- http://18.231.5.162:8080
+
+   Qualquer pessoa pode acessar este endpoint, desde que as regras de segurança estejam configuradas corretamente na instância EC2.
+
+## Endpoints da API
+
+- **POST /simulacoes**: Realiza uma simulação de crédito
+- **GET /simulacoes**: Lista todas as simulações realizadas
+- **GET /simulacoes/por-dia?data=**: Retorna valores simulados por produto em cada dia
+- **GET /simulacoes/telemetria**: Retorna dados de telemetria
 
 ## Testes
 - **Testes unitários:**
@@ -69,7 +82,7 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
 
 ## Pipeline CI/CD
 - Pipeline configurado no GitHub Actions para build e testes automáticos
-- Link: [Pipeline no GitHub](https://github.com/rodriguesla/api-simulador/actions/workflows/maven.yml)
+- Link: [Pipeline no GitHub](https://github.com/rodriguesla/api-simulador/actions)
 
 ## Diagrama de Arquitetura
 ![Diagrama de Arquitetura](docs/diagrama-arquitetura.png)

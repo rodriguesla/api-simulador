@@ -1,13 +1,13 @@
 package com.github.rodriguesla.api_simulador.service;
 
 import com.github.rodriguesla.api_simulador.dto.*;
-import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
-import com.github.rodriguesla.api_simulador.exception.ValorOuPrazoDesejadoInvalidoException;
-import com.github.rodriguesla.api_simulador.producer.EventHubProducer;
 import com.github.rodriguesla.api_simulador.entities.produto.model.Produto;
 import com.github.rodriguesla.api_simulador.entities.produto.repository.ProdutoRepository;
 import com.github.rodriguesla.api_simulador.entities.simulacao.model.Simulacao;
 import com.github.rodriguesla.api_simulador.entities.simulacao.repository.SimulacaoRepository;
+import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
+import com.github.rodriguesla.api_simulador.exception.ValorOuPrazoDesejadoInvalidoException;
+import com.github.rodriguesla.api_simulador.producer.EventHubProducer;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -31,8 +32,9 @@ public class SimulacaoService {
     private final ProdutoRepository produtoRepository;
     private final SimulacaoRepository simulacaoRepository;
     private final EventHubProducer eventHubProducer;
+    private final AtomicLong minElapsedTime = new AtomicLong(Long.MAX_VALUE);
 
-    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubProducer eventHubProducer
+    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubProducer eventHubProducer, MeterRegistry meterRegistry
     ) {
         this.produtoRepository = produtoRepository;
         this.simulacaoRepository = simulacaoRepository;
@@ -40,6 +42,7 @@ public class SimulacaoService {
     }
 
     public List<SimulacaoResponseDTO> simular(SimulacaoRequestDTO request) {
+        long start = System.currentTimeMillis();
         logger.info("Iniciando simulação: valorDesejado={}, prazo={}", request.getValorDesejado(), request.getPrazo());
 
         if (request.getValorDesejado() == null || request.getPrazo() == null) {
@@ -129,6 +132,8 @@ public class SimulacaoService {
             responses.add(responseDTO);
         }
         logger.info("Simulação concluída. Total de respostas: {}", responses.size());
+        long elapsedMillis = System.currentTimeMillis() - start;
+        minElapsedTime.updateAndGet(current -> Math.min(current, elapsedMillis));
         return responses;
     }
 
@@ -236,8 +241,7 @@ public class SimulacaoService {
             tempoMedio = (long) timer.mean(java.util.concurrent.TimeUnit.MILLISECONDS);
             tempoMaximo = (long) timer.max(java.util.concurrent.TimeUnit.MILLISECONDS);
 
-            double minValue = timer.percentile(0.01, java.util.concurrent.TimeUnit.MILLISECONDS);
-            tempoMinimo = (long) minValue;
+            tempoMinimo = minElapsedTime.get() == Long.MAX_VALUE ? 0 : minElapsedTime.get();
             logger.debug("Valores calculados: qtdRequisicoes={}, tempoMedio={}, tempoMinimo={}, tempoMaximo={}", qtdRequisicoes, tempoMedio, tempoMinimo, tempoMaximo);
         } else {
             logger.warn("Nenhum timer encontrado para /simulacoes.");
