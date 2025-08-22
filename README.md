@@ -32,21 +32,32 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
    - Maven
 2. **Configuração:**
    - Variáveis de ambiente no já estipuladas no `application.properties` para acesso ao SQL Server e EventHub
-3. **Execução via Docker Compose:**
+3. **Execução via script para criar o package e rodar o docker-compose:**
+   - Windows: 
    ```bash
+   start.bat
+   ```
+    - Linux/Mac:
+   ```bash
+   chmod +x start.sh
+   ./start.sh
+   ```
+4. **Execução via Docker Compose sem rodar o script:**
+   ```bash
+   mvn clean package
    docker-compose up --build
    ```
    - A API estará disponível em `http://localhost:8080`
-4. **Execução local:**
+5. **Execução local:**
    ```bash
    mvn spring-boot:run
    ```
-5. **Endpoint Público:**
+6. **Endpoint Público:**
    A API está disponível publicamente em:
 
-- http://18.230.17.128/:8080
+- http://18.230.17.128:8080
 
-   Qualquer pessoa pode acessar este endpoint, desde que as regras de segurança estejam configuradas corretamente na instância EC2.
+   Qualquer pessoa pode acessar este endpoint, desde que as regras de segurança estejam configuradas corretamente na instância AWS/EC2.
 
 ## Endpoints da API
 
@@ -67,6 +78,8 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
   mvn clean test jacoco:report
   ```
   Relatório gerado em `/target/site/jacoco/index.html`
+
+- **Cobertura de testes:**
 
 ## Documentação da API
 - Swagger disponível em: `http://localhost:8080/swagger-ui.html`

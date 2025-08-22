@@ -1,3 +1,4 @@
+// src/main/java/com/github/rodriguesla/api_simulador/mapper/SimulacaoMapper.java
 package com.github.rodriguesla.api_simulador.mapper;
 
 import com.github.rodriguesla.api_simulador.dto.SimulacaoPorDiaProdutoDTO;
@@ -24,7 +25,9 @@ public class SimulacaoMapper {
 
         return SimulacaoRegistroDTO.builder()
                 .idSimulacao(idSimulacaoStr)
-                .valorDesejado(BigDecimal.valueOf(s.getValorDesejado()))
+                .valorDesejado(BigDecimal.valueOf(
+                        s.getValorDesejado() != null ? s.getValorDesejado() : 0.0
+                ))
                 .prazo(s.getPrazo())
                 .valorTotalParcelas(
                         ValorTotalParcelasDTO.builder()
@@ -61,18 +64,26 @@ public class SimulacaoMapper {
 
                     BigDecimal valorMedioPrestacao = BigDecimal.valueOf(
                             list.stream()
-                                    .mapToDouble(s -> (s.getResultadoSac() + s.getResultadoPrice()) / 2)
+                                    .mapToDouble(s -> {
+                                        double sac = s.getResultadoSac() != null ? s.getResultadoSac() : 0.0;
+                                        double price = s.getResultadoPrice() != null ? s.getResultadoPrice() : 0.0;
+                                        return (sac + price) / 2;
+                                    })
                                     .average()
                                     .orElse(0)
                     );
                     BigDecimal valorTotalDesejado = BigDecimal.valueOf(
                             list.stream()
-                                    .mapToDouble(Simulacao::getValorDesejado)
+                                    .mapToDouble(s -> s.getValorDesejado() != null ? s.getValorDesejado() : 0.0)
                                     .sum()
                     );
                     BigDecimal valorTotalCredito = BigDecimal.valueOf(
                             list.stream()
-                                    .mapToDouble(s -> s.getResultadoSac() + s.getResultadoPrice())
+                                    .mapToDouble(s -> {
+                                        double sac = s.getResultadoSac() != null ? s.getResultadoSac() : 0.0;
+                                        double price = s.getResultadoPrice() != null ? s.getResultadoPrice() : 0.0;
+                                        return sac + price;
+                                    })
                                     .sum()
                     );
 

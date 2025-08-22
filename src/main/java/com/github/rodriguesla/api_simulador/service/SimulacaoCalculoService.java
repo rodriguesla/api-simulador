@@ -1,6 +1,9 @@
 package com.github.rodriguesla.api_simulador.service;
 
-import com.github.rodriguesla.api_simulador.dto.*;
+import com.github.rodriguesla.api_simulador.dto.ParcelaDTO;
+import com.github.rodriguesla.api_simulador.dto.SimulacaoRequestDTO;
+import com.github.rodriguesla.api_simulador.dto.SimulacaoResponseDTO;
+import com.github.rodriguesla.api_simulador.dto.TipoSimulacaoDTO;
 import com.github.rodriguesla.api_simulador.entities.produto.model.Produto;
 import com.github.rodriguesla.api_simulador.entities.produto.repository.ProdutoRepository;
 import com.github.rodriguesla.api_simulador.entities.simulacao.model.Simulacao;
@@ -8,33 +11,28 @@ import com.github.rodriguesla.api_simulador.entities.simulacao.repository.Simula
 import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
 import com.github.rodriguesla.api_simulador.exception.ValorOuPrazoDesejadoInvalidoException;
 import com.github.rodriguesla.api_simulador.producer.EventHubProducer;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
-public class SimulacaoService {
-    private static final Logger logger = LoggerFactory.getLogger(SimulacaoService.class);
+public class SimulacaoCalculoService {
+    private static final Logger logger = LoggerFactory.getLogger(SimulacaoCalculoService.class);
 
     private final ProdutoRepository produtoRepository;
     private final SimulacaoRepository simulacaoRepository;
     private final EventHubProducer eventHubProducer;
     private final AtomicLong minElapsedTime = new AtomicLong(Long.MAX_VALUE);
 
-    public SimulacaoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubProducer eventHubProducer
+    public SimulacaoCalculoService(ProdutoRepository produtoRepository, SimulacaoRepository simulacaoRepository, EventHubProducer eventHubProducer
     ) {
         this.produtoRepository = produtoRepository;
         this.simulacaoRepository = simulacaoRepository;
@@ -61,20 +59,12 @@ public class SimulacaoService {
         logger.debug("Produtos carregados do banco: {}", produtos);
 
         List<Produto> produtosFiltrados = produtos.stream()
-                .filter(p -> (
-                        // Incluir produto 4 nesse cenario
-                        (p.getId() == 4 && prazo == 96 && valorDesejado.compareTo(new BigDecimal("1000000.01")) >= 0)
-                                || (
-                                prazo >= p.getPrazoMinimo() &&
-                                        (p.getPrazoMaximo() != null ? prazo <= p.getPrazoMaximo() : true) &&
-                                        valorDesejado.compareTo(p.getValorMinimo()) >= 0 &&
-                                        (p.getValorMaximo() != null ? valorDesejado.compareTo(p.getValorMaximo()) <= 0 : true) &&
-                                        !(valorDesejado.compareTo(new BigDecimal("10000.01")) >= 0 &&
-                                                valorDesejado.compareTo(new BigDecimal("10000.99")) <= 0) &&
-                                        // Exclui produto 3 nesse cenario
-                                        !(p.getId() == 3 && valorDesejado.compareTo(new BigDecimal("1000000.01")) >= 0)
-                        )
-                ))
+                .filter(p ->
+                        prazo >= p.getPrazoMinimo() &&
+                                (p.getPrazoMaximo() != null ? prazo <= p.getPrazoMaximo() : true) &&
+                                valorDesejado.compareTo(p.getValorMinimo()) >= 0 &&
+                                (p.getValorMaximo() != null ? valorDesejado.compareTo(p.getValorMaximo()) <= 0 : true)
+                )
                 .collect(Collectors.toList());
         logger.info("Produtos filtrados: {}", produtosFiltrados);
 
@@ -195,94 +185,7 @@ public class SimulacaoService {
         return parcelas;
     }
 
-    public List<Simulacao> buscarSimulacoesPaginadas(int pagina, int qtdRegistrosPagina) {
-        logger.info("Listando simulações: página={}, quantidade por página={}", pagina, qtdRegistrosPagina);
-
-        if (pagina < 1) pagina = 1;
-        if (qtdRegistrosPagina < 1) qtdRegistrosPagina = 20;
-
-        int offset = (pagina - 1) * qtdRegistrosPagina;
-        List<Simulacao> simulacoes = simulacaoRepository.findAll();
-        List<Simulacao> paginadas = simulacoes.stream()
-                .skip(offset)
-                .limit(qtdRegistrosPagina)
-                .collect(Collectors.toList());
-
-        logger.info("Simulações retornadas: {}", paginadas.size());
-        if (paginadas.isEmpty()) {
-            logger.warn("Nenhuma simulação encontrada para a página {}.", pagina);
-        }
-        return paginadas;
-    }
-
-    public List<Produto> buscarTodosProdutos() {
-        List<Produto> produtos = produtoRepository.findAll();
-        logger.info("Total de produtos encontrados: {}", produtos.size());
-        return produtos;
-    }
-
-    public TelemetriaResponseDTO getTelemetria(MeterRegistry meterRegistry) {
-        logger.info("Iniciando cálculo de telemetria para o endpoint /simulacoes.");
-        String dataReferencia = LocalDate.now().toString();
-
-        Timer timer = meterRegistry.find("http.server.requests")
-                .tag("uri", "/simulacoes")
-                .timer();
-
-        long qtdRequisicoes = 0;
-        long tempoMedio = 0;
-        long tempoMinimo = 0;
-        long tempoMaximo = 0;
-        double percentualSucesso = 0.0;
-
-        if (timer != null) {
-            logger.debug("Timer encontrado para /simulacoes.");
-            qtdRequisicoes = timer.count();
-            tempoMedio = (long) timer.mean(java.util.concurrent.TimeUnit.MILLISECONDS);
-            tempoMaximo = (long) timer.max(java.util.concurrent.TimeUnit.MILLISECONDS);
-
-            tempoMinimo = minElapsedTime.get() == Long.MAX_VALUE ? 0 : minElapsedTime.get();
-            logger.debug("Valores calculados: qtdRequisicoes={}, tempoMedio={}, tempoMinimo={}, tempoMaximo={}", qtdRequisicoes, tempoMedio, tempoMinimo, tempoMaximo);
-        } else {
-            logger.warn("Nenhum timer encontrado para /simulacoes.");
-        }
-
-        AtomicReference<Double> totalRequests = new AtomicReference<>(0.0);
-        AtomicReference<Double> successRequests = new AtomicReference<>(0.0);
-
-        meterRegistry.find("http.server.requests")
-                .tag("uri", "/simulacoes")
-                .meters()
-                .forEach(meter -> {
-                    if (meter instanceof Timer) {
-                        totalRequests.updateAndGet(val -> val + ((Timer) meter).count());
-                        String status = meter.getId().getTag("status");
-                        if (status != null && status.startsWith("2")) {
-                            successRequests.updateAndGet(val -> val + ((Timer) meter).count());
-                        }
-                    }
-                });
-
-        if (totalRequests.get() > 0) {
-            percentualSucesso = successRequests.get() / totalRequests.get();
-            qtdRequisicoes = totalRequests.get().longValue();
-            logger.debug("Taxa de sucesso calculada: {}", percentualSucesso);
-        }
-
-        EndpointTelemetriaDTO endpoint = EndpointTelemetriaDTO.builder()
-                .nomeApi("API Simulador")
-                .qtdRequisicoes((int) qtdRequisicoes)
-                .tempoMedio(tempoMedio)
-                .tempoMinimo(tempoMinimo)
-                .tempoMaximo(tempoMaximo)
-                .percentualSucesso(percentualSucesso)
-                .build();
-
-        logger.info("DTO de telemetria pronto: {}", endpoint);
-
-        return TelemetriaResponseDTO.builder()
-                .dataReferencia(dataReferencia)
-                .listaEndpoints(Collections.singletonList(endpoint))
-                .build();
+    public long getMinElapsedTime() {
+        return minElapsedTime.get();
     }
 }
