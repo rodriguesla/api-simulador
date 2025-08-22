@@ -33,7 +33,9 @@ class SimulacaoTelemetriaServiceTest {
         when(timer.getId()).thenReturn(meterId);
         when(meterId.getTag("status")).thenReturn("200");
 
-        SimulacaoTelemetriaService service = new SimulacaoTelemetriaService();
+        SimulacaoCalculoService simulacaoCalculoService = mock(SimulacaoCalculoService.class);
+        when(simulacaoCalculoService.getMinElapsedTime()).thenReturn(50L);
+        SimulacaoTelemetriaService service = new SimulacaoTelemetriaService(simulacaoCalculoService);
 
         try {
             var minElapsedTimeField = SimulacaoTelemetriaService.class.getDeclaredField("minElapsedTime");
@@ -66,7 +68,9 @@ class SimulacaoTelemetriaServiceTest {
         when(search.timer()).thenReturn(null);
         when(search.meters()).thenReturn(Collections.emptyList());
 
-        SimulacaoTelemetriaService service = new SimulacaoTelemetriaService();
+        SimulacaoCalculoService simulacaoCalculoService = mock(SimulacaoCalculoService.class);
+        when(simulacaoCalculoService.getMinElapsedTime()).thenReturn(50L);
+        SimulacaoTelemetriaService service = new SimulacaoTelemetriaService(simulacaoCalculoService);
 
         TelemetriaResponseDTO response = service.getTelemetria(meterRegistry);
 
@@ -75,7 +79,7 @@ class SimulacaoTelemetriaServiceTest {
         EndpointTelemetriaDTO endpoint = response.getListaEndpoints().get(0);
         assertEquals(0, endpoint.getQtdRequisicoes());
         assertEquals(0, endpoint.getTempoMedio());
-        assertEquals(0, endpoint.getTempoMinimo());
+        assertEquals(50, endpoint.getTempoMinimo());
         assertEquals(0, endpoint.getTempoMaximo());
         assertEquals(0.0, endpoint.getPercentualSucesso());
     }
