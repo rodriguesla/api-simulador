@@ -37,8 +37,10 @@ class SimulacaoMapperTest {
         assertEquals("20240610", dto.getIdSimulacao());
         assertEquals(BigDecimal.valueOf(5000.0), dto.getValorDesejado());
         assertEquals(24, dto.getPrazo());
-        assertEquals(BigDecimal.valueOf(5200.0), dto.getValorTotalParcelas().getSac());
-        assertEquals(BigDecimal.valueOf(5300.0), dto.getValorTotalParcelas().getPrice());
+        assertEquals(BigDecimal.valueOf((5200.0 + 5300.0) / 2).setScale(2), dto.getValorTotalParcelas());
+        assertNotNull(dto.getValorSacPrice());
+        assertEquals(BigDecimal.valueOf(5200.0), dto.getValorSacPrice().getSac());
+        assertEquals(BigDecimal.valueOf(5300.0), dto.getValorSacPrice().getPrice());
     }
 
     @Test
@@ -59,8 +61,10 @@ class SimulacaoMapperTest {
         assertNull(dto.getIdSimulacao());
         assertEquals(BigDecimal.valueOf(10000.0), dto.getValorDesejado());
         assertEquals(36, dto.getPrazo());
-        assertNull(dto.getValorTotalParcelas().getSac());
-        assertNull(dto.getValorTotalParcelas().getPrice());
+        assertNull(dto.getValorTotalParcelas());
+        assertNotNull(dto.getValorSacPrice());
+        assertNull(dto.getValorSacPrice().getSac());
+        assertNull(dto.getValorSacPrice().getPrice());
     }
 
     @Test

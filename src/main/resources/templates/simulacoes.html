@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Simulações</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+  </head>
+  <body>
+    <h1>Lista de Simulações</h1>
+    <table border="1">
+      <tr>
+        <th>ID</th>
+        <th>Prazo</th>
+        <th>Valor Desejado</th>
+        <th>Valor Parcelas (Média)</th>
+        <th>SAC (Separado)</th>
+        <th>PRICE (Separado)</th>
+      </tr>
+      <tr th:each="simulacao : ${simulacoes}">
+        <td th:text="${simulacao.idSimulacao}">ID</td>
+        <td th:text="${simulacao.prazo}">Prazo</td>
+        <td th:text="${simulacao.valorDesejado}">Valor</td>
+        <td th:text="${simulacao.valorTotalParcelas}">Valor Parcelas</td>
+        <td th:text="${simulacao.valorSacPrice.sac}">SAC</td>
+        <td th:text="${simulacao.valorSacPrice.price}">PRICE</td>
+      </tr>
+    </table>
+  </body>
+</html>

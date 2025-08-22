@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Simulações por Dia</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body>
+    <h1>Simulações por Dia - <span th:text="${dataReferencia}">Data</span></h1>
+    <table border="1">
+        <tr>
+            <th>Código Produto</th>
+            <th>Descrição Produto</th>
+            <th>Taxa Média Juro</th>
+            <th>Valor Médio Prestação</th>
+            <th>Valor Total Desejado</th>
+            <th>Valor Total Crédito</th>
+        </tr>
+        <tr th:each="simulacao : ${simulacoesPorDia}">
+            <td th:text="${simulacao.codigoProduto}">Código Produto</td>
+            <td th:text="${simulacao.descricaoProduto}">Descrição Produto</td>
+            <td th:text="${simulacao.taxaMediaJuro}">Taxa Média Juro</td>
+            <td th:text="${simulacao.valorMedioPrestacao}">Valor Médio Prestação</td>
+            <td th:text="${simulacao.valorTotalDesejado}">Valor Total Desejado</td>
+            <td th:text="${simulacao.valorTotalCredito}">Valor Total Crédito</td>
+        </tr>
+    </table>
+</body>
+</html>

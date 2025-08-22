@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -18,7 +17,6 @@ public class SimulacaoTelemetriaService {
     private static final Logger logger = LoggerFactory.getLogger(SimulacaoTelemetriaService.class);
 
     private final SimulacaoCalculoService simulacaoCalculoService;
-    private final AtomicLong minElapsedTime = new AtomicLong(Long.MAX_VALUE);
 
     public SimulacaoTelemetriaService(SimulacaoCalculoService simulacaoCalculoService) {
         this.simulacaoCalculoService = simulacaoCalculoService;

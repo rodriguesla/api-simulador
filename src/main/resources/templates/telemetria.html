@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Telemetria</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body>
+    <h1>Telemetria - <span th:text="${telemetria.dataReferencia}">Data</span></h1>
+    <table border="1">
+        <tr>
+            <th>Nome API</th>
+            <th>Qtd Requisições</th>
+            <th>Tempo Médio (ms)</th>
+            <th>Tempo Mínimo (ms)</th>
+            <th>Tempo Máximo (ms)</th>
+            <th>% Sucesso</th>
+        </tr>
+        <tr th:each="endpoint : ${telemetria.listaEndpoints}">
+            <td th:text="${endpoint.nomeApi}">Nome API</td>
+            <td th:text="${endpoint.qtdRequisicoes}">Qtd</td>
+            <td th:text="${endpoint.tempoMedio}">Médio</td>
+            <td th:text="${endpoint.tempoMinimo}">Mínimo</td>
+            <td th:text="${endpoint.tempoMaximo}">Máximo</td>
+            <td th:text="${endpoint.percentualSucesso}">%</td>
+        </tr>
+    </table>
+</body>
+</html>

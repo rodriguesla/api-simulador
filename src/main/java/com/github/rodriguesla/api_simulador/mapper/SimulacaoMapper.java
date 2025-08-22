@@ -1,16 +1,15 @@
-// src/main/java/com/github/rodriguesla/api_simulador/mapper/SimulacaoMapper.java
 package com.github.rodriguesla.api_simulador.mapper;
 
 import com.github.rodriguesla.api_simulador.dto.SimulacaoPorDiaProdutoDTO;
 import com.github.rodriguesla.api_simulador.dto.SimulacaoRegistroDTO;
 import com.github.rodriguesla.api_simulador.dto.SimulacoesPorDiaResponseDTO;
-import com.github.rodriguesla.api_simulador.dto.ValorTotalParcelasDTO;
 import com.github.rodriguesla.api_simulador.entities.produto.model.Produto;
 import com.github.rodriguesla.api_simulador.entities.simulacao.model.Simulacao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
@@ -23,16 +22,28 @@ public class SimulacaoMapper {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String idSimulacaoStr = s.getDataSimulacao() != null ? s.getDataSimulacao().format(formatter) : null;
 
+        BigDecimal sac = s.getResultadoSac() != null ? BigDecimal.valueOf(s.getResultadoSac()) : null;
+        BigDecimal price = s.getResultadoPrice() != null ? BigDecimal.valueOf(s.getResultadoPrice()) : null;
+                BigDecimal valorParcelas = null;
+                if (sac != null && price != null) {
+                        valorParcelas = sac.add(price).divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
+                } else if (sac != null) {
+                        valorParcelas = sac;
+                } else if (price != null) {
+                        valorParcelas = price;
+                }
+
         return SimulacaoRegistroDTO.builder()
                 .idSimulacao(idSimulacaoStr)
                 .valorDesejado(BigDecimal.valueOf(
                         s.getValorDesejado() != null ? s.getValorDesejado() : 0.0
                 ))
                 .prazo(s.getPrazo())
-                .valorTotalParcelas(
-                        ValorTotalParcelasDTO.builder()
-                                .sac(s.getResultadoSac() != null ? BigDecimal.valueOf(s.getResultadoSac()) : null)
-                                .price(s.getResultadoPrice() != null ? BigDecimal.valueOf(s.getResultadoPrice()) : null)
+                .valorTotalParcelas(valorParcelas)
+                .valorSacPrice(
+                        com.github.rodriguesla.api_simulador.dto.ValorSacPriceDTO.builder()
+                                .sac(sac)
+                                .price(price)
                                 .build()
                 )
                 .build();

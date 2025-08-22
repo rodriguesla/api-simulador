@@ -11,5 +11,6 @@ public class SimulacaoRegistroDTO {
     private String idSimulacao;
     private BigDecimal valorDesejado;
     private Integer prazo;
-    private ValorTotalParcelasDTO valorTotalParcelas;
+    private BigDecimal valorTotalParcelas; // mean of sac and price
+    private ValorSacPriceDTO valorSacPrice; // sac and price separated
 }
