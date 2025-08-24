@@ -56,7 +56,7 @@ class CustomExceptionResolverTest {
         resolver.resolveException(request, response, null, ex);
         verify(response).setStatus(403);
         assertTrue(responseWriter.toString().contains("\"erro\":\"Proibido\""));
-        assertTrue(responseWriter.toString().contains("\"mensagem\":\"Acesso negado.\""));
+        assertTrue(responseWriter.toString().contains("\"mensagem\":\"Acesso negado\""));
     }
 
     @Test

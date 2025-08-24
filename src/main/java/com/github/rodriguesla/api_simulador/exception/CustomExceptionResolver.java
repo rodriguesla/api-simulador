@@ -42,7 +42,7 @@ public class CustomExceptionResolver implements HandlerExceptionResolver {
             case AcessoNegadoException acessoNegadoException -> {
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 erroResponse.setErro("Proibido");
-                erroResponse.setMensagem("Acesso negado.");
+                erroResponse.setMensagem(ex.getMessage());
                 erroResponse.setCodigo(403);
             }
             case SimulacaoNaoEncontradaException simulacaoNaoEncontradaException -> {

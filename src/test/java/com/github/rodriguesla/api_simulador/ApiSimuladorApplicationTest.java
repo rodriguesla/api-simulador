@@ -12,7 +12,12 @@ class ApiSimuladorApplicationTest {
 
 	@Test
 	void mainMethodRuns() {
-		ApiSimuladorApplication.main(new String[]{});
+		System.setProperty("spring.main.web-application-type", "none");
+		try {
+			ApiSimuladorApplication.main(new String[]{"--spring.main.web-application-type=none"});
+		} finally {
+			System.clearProperty("spring.main.web-application-type");
+		}
 	}
 
 }
