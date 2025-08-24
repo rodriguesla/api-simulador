@@ -19,38 +19,40 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class JwtFiltroAutenticacao extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    // Endpoints that don't require authentication
     private static final List<String> EXCLUDED_PATHS = Arrays.asList(
-        "/auth/token",
-        "/swagger-ui",
-        "/v3/api-docs",
-        "/actuator"
+            "/auth/token",
+            "/swagger-ui",
+            "/v3/api-docs",
+            "/actuator",
+            "/simulacoes-view",
+            "/simulacoes-por-dia-view",
+            "/telemetria-view",
+            "/static/css",
+            "/css",
+            "/favicon.ico"
     );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                  FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         String requestPath = request.getRequestURI();
-
         if (isExcludedPath(requestPath)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
-
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             sendErrorResponse(response, "Token de acesso requerido. Use o endpoint /auth/token para obter um token.");
             return;
         }
 
         String token = authHeader.substring(7);
-
         if (!jwtUtil.validateToken(token)) {
             sendErrorResponse(response, "Token inválido ou expirado. Gere um novo token usando /auth/token.");
             return;

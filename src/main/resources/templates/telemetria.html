@@ -18,10 +18,10 @@
         <tr th:each="endpoint : ${telemetria.listaEndpoints}">
             <td th:text="${endpoint.nomeApi}">Nome API</td>
             <td th:text="${endpoint.qtdRequisicoes}">Qtd</td>
-            <td th:text="${endpoint.tempoMedio}">Médio</td>
-            <td th:text="${endpoint.tempoMinimo}">Mínimo</td>
-            <td th:text="${endpoint.tempoMaximo}">Máximo</td>
-            <td th:text="${endpoint.percentualSucesso}">%</td>
+            <td th:text="${#numbers.formatDecimal(endpoint.tempoMedio, 1, 2)}">Médio</td>
+            <td th:text="${#numbers.formatDecimal(endpoint.tempoMinimo, 1, 2)}">Mínimo</td>
+            <td th:text="${#numbers.formatDecimal(endpoint.tempoMaximo, 1, 2)}">Máximo</td>
+            <td th:text="${#numbers.formatDecimal(endpoint.percentualSucesso, 1, 2)}">%</td>
         </tr>
     </table>
 </body>

@@ -53,11 +53,45 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
    mvn spring-boot:run
    ```
 6. **Endpoint Público:**
-   A API está disponível publicamente em:
+   A API está disponível publicamente em uma instância EC2 da AWS, configurada para acesso externo via IP público. O ambiente foi provisionado e configurado para garantir segurança e disponibilidade.
 
 - http://54.207.33.166:8080
 
-   Qualquer pessoa pode acessar este endpoint, desde que as regras de segurança estejam configuradas corretamente na instância AWS/EC2.
+   Qualquer pessoa pode acessar este endpoint, desde que as regras de segurança estejam configuradas corretamente na instância AWS/EC2. O endpoint público está incluído na coleção Postman disponível no projeto (`/docs/Hackaton2025.postman_collection.json`), facilitando testes automatizados e integração.
+
+## Segurança e Autenticação JWT
+A partir desta versão, todos os endpoints protegidos exigem autenticação via token JWT. Para acessar os recursos, siga o fluxo abaixo:
+
+- **Gerar Token de Acesso:**
+  - Endpoint: `POST /auth/token`
+  - Corpo da requisição (JSON):
+    ```json
+    {
+      "usuario": "hackathon",
+      "password": "2025"
+    }
+    ```
+  - Exemplo de resposta (sucesso):
+    ```json
+    {
+      "token": "<seu_token_jwt>",
+      "tipo": "Bearer",
+      "usuario": "hackathon",
+      "expiraEm": 3600
+    }
+    ```
+  - Se as credenciais estiverem incorretas, será retornado HTTP 401.
+
+- **Utilizar o Token nos Endpoints Protegidos:**
+  - Adicione o header `Authorization` em todas as requisições:
+    ```
+    Authorization: Bearer <seu_token_jwt>
+    ```
+  - Sem o token ou com token inválido, a API retorna HTTP 403 e mensagem de erro.
+
+- **Endpoints públicos:**
+  - O endpoint `/auth/token` não exige autenticação.
+  - Endpoints de documentação Swagger e métricas também são públicos.
 
 ## Endpoints da API
 
@@ -65,6 +99,18 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
 - **GET /simulacoes**: Lista todas as simulações realizadas
 - **GET /simulacoes/por-dia?data=**: Retorna valores simulados por produto em cada dia
 - **GET /simulacoes/telemetria**: Retorna dados de telemetria
+
+## Visualização dos Dados via Navegador
+Além do consumo dos endpoints via API, é possível visualizar os dados diretamente no navegador utilizando templates Thymeleaf, proporcionando uma experiência visual mais clara e detalhada das respostas.
+
+Para uma melhor experiência visual, recomenda-se instalar uma extensão ou servidor de linguagem CSS no seu editor, garantindo que os estilos dos templates sejam renderizados corretamente durante o desenvolvimento.
+
+Os principais endpoints de visualização são:
+- `/simulacoes-view`: Lista de simulações realizadas
+- `/simulacoes-por-dia-view`: Simulações agrupadas por dia
+- `/telemetria-view`: Dados de telemetria e métricas da API
+
+Esses endpoints utilizam templates HTML para exibir as informações de forma organizada e intuitiva, facilitando o entendimento dos dados retornados pela API. Todos os endereços estão definidos no controller de visualização (`SimulacaoViewController`).
 
 ## Testes
 - **Testes unitários:**
