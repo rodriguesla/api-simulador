@@ -1,6 +1,7 @@
 package com.github.rodriguesla.api_simulador.controller;
 
 import com.github.rodriguesla.api_simulador.dto.*;
+import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
 import com.github.rodriguesla.api_simulador.service.SimulacaoCalculoService;
 import com.github.rodriguesla.api_simulador.service.SimulacaoListaService;
 import com.github.rodriguesla.api_simulador.service.SimulacaoPorDiaService;
@@ -10,18 +11,20 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Endpoints", description = "Gerencia simulações de crédito e fornece dados de telemetria")
 @RestController
 @RequestMapping("/simulacoes")
 @RequiredArgsConstructor
-public class SimulacaoController implements ApiResponseDocumentacao {
+public class SimulacaoController {
     private final SimulacaoCalculoService simulacaoCalculoService;
     private final SimulacaoListaService simulacaoListaService;
     private final SimulacaoPorDiaService simulacaoPorDiaService;
@@ -29,11 +32,16 @@ public class SimulacaoController implements ApiResponseDocumentacao {
     private final MeterRegistry meterRegistry;
 
     @Operation(summary = "Realiza uma simulação de crédito", description = "Recebe um envelope JSON, valida, calcula SAC/PRICE, persiste e retorna o resultado.")
-    @ApiResponse(
+    @ApiResponses({
+        @ApiResponse(
             responseCode = "200",
             description = "Simulação realizada com sucesso",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimulacaoResponseDTO.class))
-    )
+        ),
+        @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "403", description = "Proibido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class)))
+    })
     @PostMapping
     public ResponseEntity<List<SimulacaoResponseDTO>> simular(@RequestBody SimulacaoRequestDTO request) {
         List<SimulacaoResponseDTO> responses = simulacaoCalculoService.simular(request);
@@ -41,11 +49,17 @@ public class SimulacaoController implements ApiResponseDocumentacao {
     }
 
     @Operation(summary = "Lista todas as simulações realizadas")
-    @ApiResponse(
+    @ApiResponses({
+        @ApiResponse(
             responseCode = "200",
             description = "Sucesso ao listar simulações",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimulacaoListaResponseDTO.class))
-    )
+        ),
+        @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "403", description = "Proibido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class)))
+    })
     @GetMapping
     public SimulacaoListaResponseDTO listarSimulacoes(
             @RequestParam(defaultValue = "1") int pagina,
@@ -54,24 +68,39 @@ public class SimulacaoController implements ApiResponseDocumentacao {
     }
 
     @Operation(summary = "Retorna valores simulados por produto em cada dia")
-    @ApiResponse(
+    @ApiResponses({
+        @ApiResponse(
             responseCode = "200",
             description = "Valores simulados retornados com sucesso",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = SimulacoesPorDiaResponseDTO.class))
-    )
+        ),
+        @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "403", description = "Proibido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class)))
+    })
     @GetMapping("/por-dia")
     public SimulacoesPorDiaResponseDTO simulacoesPorDia(@RequestParam String data) {
         return simulacaoPorDiaService.buscarSimulacoesPorDia(data);
     }
 
     @Operation(summary = "Retorna dados de telemetria (volumes e tempos de resposta)")
-    @ApiResponse(
+    @ApiResponses({
+        @ApiResponse(
             responseCode = "200",
             description = "Dados de telemetria retornados com sucesso",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = TelemetriaResponseDTO.class))
-    )
+        ),
+        @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "403", description = "Proibido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "404", description = "Não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class))),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class)))
+    })
     @GetMapping("/telemetria")
-    public ResponseEntity<TelemetriaResponseDTO> telemetria() {
+    public ResponseEntity<TelemetriaResponseDTO> telemetria(@RequestParam Map<String, String> params) {
+        if (params != null && !params.isEmpty()) {
+            throw new RequisicaoInvalidaException("Este endpoint não aceita parâmetros. Remova os parâmetros da requisição.");
+        }
         TelemetriaResponseDTO response = simulacaoTelemetriaService.getTelemetria(meterRegistry);
         return ResponseEntity.ok(response);
     }

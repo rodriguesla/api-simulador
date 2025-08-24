@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -19,6 +20,7 @@ class CustomExceptionResolverTest {
     private HttpServletRequest request;
     private HttpServletResponse response;
     private StringWriter responseWriter;
+    private static final String MSG_VALOR_INVALIDO = "Valor inválido";
 
     @BeforeEach
     void setUp() throws Exception {
@@ -32,11 +34,11 @@ class CustomExceptionResolverTest {
 
     @Test
     void testValorOuPrazoDesejadoInvalidoException() throws Exception {
-        Exception ex = new ValorOuPrazoDesejadoInvalidoException("Valor inválido");
+        Exception ex = new ValorOuPrazoDesejadoInvalidoException(MSG_VALOR_INVALIDO);
         resolver.resolveException(request, response, null, ex);
         verify(response).setStatus(400);
         assertTrue(responseWriter.toString().contains("\"erro\":\"ValorInvalido\""));
-        assertTrue(responseWriter.toString().contains("\"mensagem\":\"Valor inválido\""));
+        assertTrue(responseWriter.toString().contains("\"mensagem\":\"" + MSG_VALOR_INVALIDO + "\""));
     }
 
     @Test
@@ -58,8 +60,8 @@ class CustomExceptionResolverTest {
     }
 
     @Test
-    void testNoHandlerFoundException() throws Exception {
-        Exception ex = new NoHandlerFoundException("GET", "/notfound", null);
+    void testSimulacaoNaoEncontradaException() throws Exception {
+        Exception ex = new SimulacaoNaoEncontradaException("Recurso não encontrado.");
         resolver.resolveException(request, response, null, ex);
         verify(response).setStatus(404);
         assertTrue(responseWriter.toString().contains("\"erro\":\"NaoEncontrado\""));
@@ -73,5 +75,17 @@ class CustomExceptionResolverTest {
         verify(response).setStatus(500);
         assertTrue(responseWriter.toString().contains("\"erro\":\"ErroInterno\""));
         assertTrue(responseWriter.toString().contains("\"mensagem\":\"Erro interno do servidor.\""));
+    }
+
+    @Test
+    void testIOExceptionInResponseWriter() throws Exception {
+        resolver = new CustomExceptionResolver();
+        request = mock(HttpServletRequest.class);
+        response = mock(HttpServletResponse.class);
+        // Simulate IOException when getWriter() is called
+        when(response.getWriter()).thenThrow(new IOException("Test IO error"));
+        Exception ex = new ValorOuPrazoDesejadoInvalidoException(MSG_VALOR_INVALIDO);
+        // Should not throw, just cover the catch block
+        resolver.resolveException(request, response, null, ex);
     }
 }

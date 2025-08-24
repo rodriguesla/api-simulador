@@ -10,4 +10,9 @@ class ApiSimuladorApplicationTest {
 	void contextLoads() {
 	}
 
+	@Test
+	void mainMethodRuns() {
+		ApiSimuladorApplication.main(new String[]{});
+	}
+
 }

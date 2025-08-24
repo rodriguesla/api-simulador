@@ -4,6 +4,7 @@ import com.github.rodriguesla.api_simulador.dto.SimulacaoListaResponseDTO;
 import com.github.rodriguesla.api_simulador.dto.SimulacaoRegistroDTO;
 import com.github.rodriguesla.api_simulador.entities.simulacao.model.Simulacao;
 import com.github.rodriguesla.api_simulador.entities.simulacao.repository.SimulacaoRepository;
+import com.github.rodriguesla.api_simulador.exception.SimulacaoNaoEncontradaException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -45,11 +46,11 @@ class SimulacaoListaServiceTest {
 
         SimulacaoListaService service = new SimulacaoListaService(simulacaoRepository);
 
-        SimulacaoListaResponseDTO response = service.buscarSimulacoesLista(1, 10);
-
-        assertNotNull(response);
-        assertEquals(0, response.getRegistros().size());
-        assertEquals(0, response.getQtdRegistros());
+        SimulacaoNaoEncontradaException exception = assertThrows(
+            com.github.rodriguesla.api_simulador.exception.SimulacaoNaoEncontradaException.class,
+            () -> service.buscarSimulacoesLista(1, 10)
+        );
+        assertTrue(exception.getMessage().contains("Nenhuma simulação encontrada"));
     }
 
     @Test

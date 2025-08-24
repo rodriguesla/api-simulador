@@ -6,6 +6,7 @@ import com.github.rodriguesla.api_simulador.entities.simulacao.model.Simulacao;
 import com.github.rodriguesla.api_simulador.entities.produto.repository.ProdutoRepository;
 import com.github.rodriguesla.api_simulador.entities.simulacao.repository.SimulacaoRepository;
 import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
+import com.github.rodriguesla.api_simulador.exception.SimulacaoNaoEncontradaException;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class SimulacaoPorDiaServiceTest {
+
+    private static final String TEST_DATE = "2024-06-01";
 
     @Test
     void buscarSimulacoesPorDiaReturnsCorrectResponse() {
@@ -39,7 +42,7 @@ class SimulacaoPorDiaServiceTest {
 
         SimulacaoPorDiaService service = new SimulacaoPorDiaService(simulacaoRepository, produtoRepository);
 
-        SimulacoesPorDiaResponseDTO response = service.buscarSimulacoesPorDia("2024-06-01");
+        SimulacoesPorDiaResponseDTO response = service.buscarSimulacoesPorDia(TEST_DATE);
 
         assertNotNull(response);
         assertEquals("2024-06-01", response.getDataReferencia());
@@ -85,5 +88,22 @@ class SimulacaoPorDiaServiceTest {
         assertEquals(produto1, produtos.get(0));
         assertEquals(produto2, produtos.get(1));
         verify(produtoRepository, times(1)).findAll();
+    }
+
+    @Test
+    void buscarSimulacoesPorDiaNoResultsThrowsSimulacaoNaoEncontradaException() {
+        SimulacaoRepository simulacaoRepository = mock(SimulacaoRepository.class);
+        ProdutoRepository produtoRepository = mock(ProdutoRepository.class);
+
+        when(simulacaoRepository.findByDataSimulacaoBetween(any(), any()))
+            .thenReturn(List.of());
+
+        SimulacaoPorDiaService service = new SimulacaoPorDiaService(simulacaoRepository, produtoRepository);
+
+        SimulacaoNaoEncontradaException exception = assertThrows(
+            com.github.rodriguesla.api_simulador.exception.SimulacaoNaoEncontradaException.class,
+            () -> service.buscarSimulacoesPorDia(TEST_DATE)
+        );
+        assertTrue(exception.getMessage().contains("Nenhuma simulação encontrada para o dia informado."));
     }
 }

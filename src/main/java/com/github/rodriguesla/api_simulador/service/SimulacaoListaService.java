@@ -23,6 +23,9 @@ public class SimulacaoListaService {
 
     public SimulacaoListaResponseDTO buscarSimulacoesLista(int pagina, int qtdRegistrosPagina) {
         List<Simulacao> simulacoes = buscarSimulacoesPaginadas(pagina, qtdRegistrosPagina);
+        if (simulacoes.isEmpty()) {
+            throw new com.github.rodriguesla.api_simulador.exception.SimulacaoNaoEncontradaException("Nenhuma simulação encontrada.");
+        }
         List<SimulacaoRegistroDTO> registros = simulacoes.stream()
                 .map(SimulacaoMapper::toRegistroDTO)
                 .collect(Collectors.toList());

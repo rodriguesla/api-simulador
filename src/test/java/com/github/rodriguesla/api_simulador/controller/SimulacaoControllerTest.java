@@ -1,6 +1,7 @@
 package com.github.rodriguesla.api_simulador.controller;
 
 import com.github.rodriguesla.api_simulador.dto.*;
+import com.github.rodriguesla.api_simulador.exception.RequisicaoInvalidaException;
 import com.github.rodriguesla.api_simulador.service.SimulacaoCalculoService;
 import com.github.rodriguesla.api_simulador.service.SimulacaoListaService;
 import com.github.rodriguesla.api_simulador.service.SimulacaoPorDiaService;
@@ -11,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -147,10 +150,30 @@ class SimulacaoControllerTest {
 
         when(simulacaoTelemetriaService.getTelemetria(meterRegistry)).thenReturn(telemetryResponse);
 
-        ResponseEntity<TelemetriaResponseDTO> response = controller.telemetria();
+        ResponseEntity<TelemetriaResponseDTO> response = controller.telemetria(Collections.emptyMap());
 
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(telemetryResponse, response.getBody());
         verify(simulacaoTelemetriaService, times(1)).getTelemetria(meterRegistry);
+    }
+
+    @Test
+    void testTelemetriaWithParamsThrowsBadRequest() {
+        SimulacaoCalculoService simulacaoCalculoService = mock(SimulacaoCalculoService.class);
+        SimulacaoListaService simulacaoListaService = mock(SimulacaoListaService.class);
+        SimulacaoPorDiaService simulacaoPorDiaService = mock(SimulacaoPorDiaService.class);
+        SimulacaoTelemetriaService simulacaoTelemetriaService = mock(SimulacaoTelemetriaService.class);
+        MeterRegistry meterRegistry = mock(MeterRegistry.class);
+
+        SimulacaoController controller = new SimulacaoController(
+                simulacaoCalculoService,
+                simulacaoListaService,
+                simulacaoPorDiaService,
+                simulacaoTelemetriaService,
+                meterRegistry
+        );
+
+        Map<String, String> params = Map.of("foo", "bar");
+        assertThrows(RequisicaoInvalidaException.class, () -> controller.telemetria(params));
     }
 }

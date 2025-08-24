@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class SimulacaoPorDiaService {
     private static final Logger logger = LoggerFactory.getLogger(SimulacaoPorDiaService.class);
+    private static final String MSG_SIMULACAO_NAO_ENCONTRADA = "Nenhuma simulação encontrada para o dia informado.";
 
     private final SimulacaoRepository simulacaoRepository;
     private final ProdutoRepository produtoRepository;
@@ -43,6 +44,9 @@ public class SimulacaoPorDiaService {
         LocalDateTime start = dia.atStartOfDay();
         LocalDateTime end = dia.atTime(LocalTime.MAX);
         List<Simulacao> simulacoes = simulacaoRepository.findByDataSimulacaoBetween(start, end);
+        if (simulacoes.isEmpty()) {
+            throw new com.github.rodriguesla.api_simulador.exception.SimulacaoNaoEncontradaException(MSG_SIMULACAO_NAO_ENCONTRADA);
+        }
         Map<Integer, Produto> produtoMap = buscarProdutoMap();
         return SimulacaoMapper.toSimulacoesPorDiaResponseDTO(data, simulacoes, produtoMap);
     }

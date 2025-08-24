@@ -2,6 +2,7 @@ package com.github.rodriguesla.api_simulador.service;
 
 import com.github.rodriguesla.api_simulador.dto.EndpointTelemetriaDTO;
 import com.github.rodriguesla.api_simulador.dto.TelemetriaResponseDTO;
+import com.github.rodriguesla.api_simulador.exception.SimulacaoNaoEncontradaException;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
@@ -63,6 +64,11 @@ public class SimulacaoTelemetriaService {
                     }
                 });
 
+        if (totalRequests.get() == 0) {
+            logger.warn("Nenhuma requisição encontrada para o endpoint /simulacoes. Lançando SimulacaoNaoEncontradaException.");
+            throw new SimulacaoNaoEncontradaException("Nenhuma simulação encontrada. Crie uma simulação para gerar dados de telemetria.");
+        }
+
         if (totalRequests.get() > 0) {
             percentualSucesso = successRequests.get() / totalRequests.get();
             qtdRequisicoes = totalRequests.get().longValue();
@@ -70,7 +76,7 @@ public class SimulacaoTelemetriaService {
         }
 
         EndpointTelemetriaDTO endpoint = EndpointTelemetriaDTO.builder()
-                .nomeApi("API Simulador")
+                .nomeApi("Simulacao")
                 .qtdRequisicoes((int) qtdRequisicoes)
                 .tempoMedio(tempoMedio)
                 .tempoMinimo(tempoMinimo)

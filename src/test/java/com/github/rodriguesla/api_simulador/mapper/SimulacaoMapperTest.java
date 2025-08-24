@@ -68,6 +68,46 @@ class SimulacaoMapperTest {
     }
 
     @Test
+    void testToRegistroDTOOnlySac() {
+        LocalDateTime now = LocalDateTime.of(2024, 6, 10, 12, 0);
+        Simulacao simulacao = Simulacao.builder()
+                .id(3L)
+                .produtoId(102)
+                .valorDesejado(4000.0)
+                .prazo(12)
+                .resultadoSac(4100.0)
+                .resultadoPrice(null)
+                .dataSimulacao(now)
+                .envelopeJson("{}")
+                .build();
+
+        SimulacaoRegistroDTO dto = SimulacaoMapper.toRegistroDTO(simulacao);
+        assertEquals(BigDecimal.valueOf(4100.0), dto.getValorTotalParcelas());
+        assertEquals(BigDecimal.valueOf(4100.0), dto.getValorSacPrice().getSac());
+        assertNull(dto.getValorSacPrice().getPrice());
+    }
+
+    @Test
+    void testToRegistroDTOOnlyPrice() {
+        LocalDateTime now = LocalDateTime.of(2024, 6, 10, 12, 0);
+        Simulacao simulacao = Simulacao.builder()
+                .id(4L)
+                .produtoId(103)
+                .valorDesejado(3000.0)
+                .prazo(6)
+                .resultadoSac(null)
+                .resultadoPrice(3200.0)
+                .dataSimulacao(now)
+                .envelopeJson("{}")
+                .build();
+
+        SimulacaoRegistroDTO dto = SimulacaoMapper.toRegistroDTO(simulacao);
+        assertEquals(BigDecimal.valueOf(3200.0), dto.getValorTotalParcelas());
+        assertNull(dto.getValorSacPrice().getSac());
+        assertEquals(BigDecimal.valueOf(3200.0), dto.getValorSacPrice().getPrice());
+    }
+
+    @Test
     void testToSimulacoesPorDiaResponseDTOMultipleProducts() {
         Simulacao s1 = Simulacao.builder()
                 .id(1L)

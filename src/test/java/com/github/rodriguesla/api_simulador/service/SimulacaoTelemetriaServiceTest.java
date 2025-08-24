@@ -2,6 +2,7 @@ package com.github.rodriguesla.api_simulador.service;
 
 import com.github.rodriguesla.api_simulador.dto.EndpointTelemetriaDTO;
 import com.github.rodriguesla.api_simulador.dto.TelemetriaResponseDTO;
+import com.github.rodriguesla.api_simulador.exception.SimulacaoNaoEncontradaException;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.junit.jupiter.api.Test;
@@ -42,7 +43,8 @@ class SimulacaoTelemetriaServiceTest {
         assertNotNull(response);
         assertEquals(1, response.getListaEndpoints().size());
         EndpointTelemetriaDTO endpoint = response.getListaEndpoints().get(0);
-        assertEquals("API Simulador", endpoint.getNomeApi());
+        System.out.println("endpoint.getNomeApi(): " + endpoint.getNomeApi());
+        assertEquals("Simulacao", endpoint.getNomeApi());
         assertEquals(10, endpoint.getQtdRequisicoes());
         assertEquals(100, endpoint.getTempoMedio());
         assertEquals(50, endpoint.getTempoMinimo());
@@ -64,15 +66,11 @@ class SimulacaoTelemetriaServiceTest {
         when(simulacaoCalculoService.getMinElapsedTime()).thenReturn(50L);
         SimulacaoTelemetriaService service = new SimulacaoTelemetriaService(simulacaoCalculoService);
 
-        TelemetriaResponseDTO response = service.getTelemetria(meterRegistry);
-
-        assertNotNull(response);
-        assertEquals(1, response.getListaEndpoints().size());
-        EndpointTelemetriaDTO endpoint = response.getListaEndpoints().get(0);
-        assertEquals(0, endpoint.getQtdRequisicoes());
-        assertEquals(0, endpoint.getTempoMedio());
-        assertEquals(50, endpoint.getTempoMinimo());
-        assertEquals(0, endpoint.getTempoMaximo());
-        assertEquals(0.0, endpoint.getPercentualSucesso());
+        SimulacaoNaoEncontradaException exception = assertThrows(
+            SimulacaoNaoEncontradaException.class,
+            () -> service.getTelemetria(meterRegistry)
+        );
+        System.out.println("Actual exception message: " + exception.getMessage());
+        assertTrue(exception.getMessage().contains("Nenhuma simulação encontrada. Crie uma simulação para gerar dados de telemetria."));
     }
 }

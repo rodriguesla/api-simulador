@@ -19,6 +19,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequiredArgsConstructor
 public class SimulacaoViewController {
+    private static final String VIEW_SIMULACOES = "simulacoes";
+    private static final String VIEW_SIMULACOES_POR_DIA = "simulacoes_por_dia";
+    private static final String VIEW_TELEMETRIA = "telemetria";
+    private static final String ATTR_SIMULACOES = "simulacoes";
+    private static final String ATTR_DATA_REFERENCIA = "dataReferencia";
+    private static final String ATTR_SIMULACOES_POR_DIA = "simulacoesPorDia";
+    private static final String ATTR_TELEMETRIA = "telemetria";
+
     private final SimulacaoListaService simulacaoListaService;
     private final SimulacaoPorDiaService simulacaoPorDiaService;
     private final SimulacaoTelemetriaService simulacaoTelemetriaService;
@@ -27,8 +35,8 @@ public class SimulacaoViewController {
     @GetMapping("/simulacoes-view")
     public String listarSimulacoes(Model model) {
         SimulacaoListaResponseDTO simulacoes = simulacaoListaService.buscarSimulacoesLista(1, 200);
-        model.addAttribute("simulacoes", simulacoes.getRegistros());
-        return "simulacoes";
+        model.addAttribute(ATTR_SIMULACOES, simulacoes.getRegistros());
+        return VIEW_SIMULACOES;
     }
 
     @GetMapping("/simulacoes-por-dia-view")
@@ -37,15 +45,15 @@ public class SimulacaoViewController {
             data = java.time.LocalDate.now().toString();
         }
         SimulacoesPorDiaResponseDTO simulacoesPorDia = simulacaoPorDiaService.buscarSimulacoesPorDia(data);
-        model.addAttribute("dataReferencia", simulacoesPorDia.getDataReferencia());
-        model.addAttribute("simulacoesPorDia", simulacoesPorDia.getSimulacoes());
-        return "simulacoes_por_dia";
+        model.addAttribute(ATTR_DATA_REFERENCIA, simulacoesPorDia.getDataReferencia());
+        model.addAttribute(ATTR_SIMULACOES_POR_DIA, simulacoesPorDia.getSimulacoes());
+        return VIEW_SIMULACOES_POR_DIA;
     }
 
     @GetMapping("/telemetria-view")
     public String mostrarTelemetria(Model model) {
         TelemetriaResponseDTO telemetria = simulacaoTelemetriaService.getTelemetria(meterRegistry);
-        model.addAttribute("telemetria", telemetria);
-        return "telemetria";
+        model.addAttribute(ATTR_TELEMETRIA, telemetria);
+        return VIEW_TELEMETRIA;
     }
 }

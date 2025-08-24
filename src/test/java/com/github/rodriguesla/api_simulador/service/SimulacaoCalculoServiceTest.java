@@ -16,11 +16,15 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class SimulacaoCalculoServiceTest {
+
+    private static final BigDecimal TEST_VALOR = new BigDecimal("1000.00");
+    private static final BigDecimal TEST_TAXA = new BigDecimal("0.01");
+    private static final BigDecimal PRODUTO_VALOR_MINIMO = new BigDecimal("1000");
+    private static final BigDecimal PRODUTO_VALOR_MAXIMO = new BigDecimal("10000");
 
     @Test
     void simularValidRequestReturnsResponse() {
@@ -34,8 +38,8 @@ class SimulacaoCalculoServiceTest {
                 .taxaJuros(new BigDecimal("0.01"))
                 .prazoMinimo((short) 1)
                 .prazoMaximo((short) 12)
-                .valorMinimo(new BigDecimal("1000"))
-                .valorMaximo(new BigDecimal("10000"))
+                .valorMinimo(PRODUTO_VALOR_MINIMO)
+                .valorMaximo(PRODUTO_VALOR_MAXIMO)
                 .build();
 
         when(produtoRepository.findAll()).thenReturn(Collections.singletonList(produto));
@@ -88,6 +92,33 @@ class SimulacaoCalculoServiceTest {
         assertThrows(ValorOuPrazoDesejadoInvalidoException.class, () -> service.simular(request));
     }
 
+    @Test
+    void simularNoMatchingProductThrowsException() {
+        ProdutoRepository produtoRepository = mock(ProdutoRepository.class);
+        SimulacaoRepository simulacaoRepository = mock(SimulacaoRepository.class);
+        EventHubProducer eventHubProducer = mock(EventHubProducer.class);
+
+        Produto produto = Produto.builder()
+                .id(1)
+                .nome("Produto Teste")
+                .taxaJuros(TEST_TAXA)
+                .prazoMinimo((short) 1)
+                .prazoMaximo((short) 12)
+                .valorMinimo(PRODUTO_VALOR_MINIMO)
+                .valorMaximo(PRODUTO_VALOR_MAXIMO)
+                .build();
+        // Only one product, but request will be out of range
+        when(produtoRepository.findAll()).thenReturn(Collections.singletonList(produto));
+
+        SimulacaoCalculoService service = new SimulacaoCalculoService(produtoRepository, simulacaoRepository, eventHubProducer);
+
+        SimulacaoRequestDTO request = new SimulacaoRequestDTO();
+        request.setValorDesejado(999.0); // less than valorMinimo
+        request.setPrazo(13); // greater than prazoMaximo
+
+        assertThrows(ValorOuPrazoDesejadoInvalidoException.class, () -> service.simular(request));
+    }
+
     private List<ParcelaDTO> invokeCalcularSacParcelas(SimulacaoCalculoService service, BigDecimal valor, BigDecimal taxa, short prazo) throws Exception {
         var method = SimulacaoCalculoService.class.getDeclaredMethod("calcularSacParcelas", BigDecimal.class, BigDecimal.class, Short.class);
         method.setAccessible(true);
@@ -99,11 +130,9 @@ class SimulacaoCalculoServiceTest {
     @Test
     void calcularSacParcelasReturnsCorrectParcelas() throws Exception {
         SimulacaoCalculoService service = new SimulacaoCalculoService(null, null, null);
-        BigDecimal valor = new BigDecimal("1000.00");
-        BigDecimal taxa = new BigDecimal("0.01");
         short prazo = 2;
 
-        List<ParcelaDTO> parcelas = invokeCalcularSacParcelas(service, valor, taxa, prazo);
+        List<ParcelaDTO> parcelas = invokeCalcularSacParcelas(service, TEST_VALOR, TEST_TAXA, prazo);
 
         assertEquals(2, parcelas.size());
         assertEquals(1, parcelas.get(0).getNumero());
@@ -119,13 +148,11 @@ class SimulacaoCalculoServiceTest {
     @Test
     void calcularSacParcelasZeroPrazoThrowsException() {
         SimulacaoCalculoService service = new SimulacaoCalculoService(null, null, null);
-        BigDecimal valor = new BigDecimal("1000.00");
-        BigDecimal taxa = new BigDecimal("0.01");
         short prazo = 0;
 
         assertThrows(ValorOuPrazoDesejadoInvalidoException.class, () -> {
             try {
-                invokeCalcularSacParcelas(service, valor, taxa, prazo);
+                invokeCalcularSacParcelas(service, TEST_VALOR, TEST_TAXA, prazo);
             } catch (Exception e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof ValorOuPrazoDesejadoInvalidoException) {
@@ -139,13 +166,11 @@ class SimulacaoCalculoServiceTest {
     @Test
     void calcularSacParcelasNegativePrazoThrowsException() {
         SimulacaoCalculoService service = new SimulacaoCalculoService(null, null, null);
-        BigDecimal valor = new BigDecimal("1000.00");
-        BigDecimal taxa = new BigDecimal("0.01");
         short prazo = -1;
 
         assertThrows(ValorOuPrazoDesejadoInvalidoException.class, () -> {
             try {
-                invokeCalcularSacParcelas(service, valor, taxa, prazo);
+                invokeCalcularSacParcelas(service, TEST_VALOR, TEST_TAXA, prazo);
             } catch (Exception e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof ValorOuPrazoDesejadoInvalidoException) {
@@ -165,11 +190,9 @@ class SimulacaoCalculoServiceTest {
     @Test
     void calcularPriceParcelasReturnsCorrectParcelas() throws Exception {
         SimulacaoCalculoService service = new SimulacaoCalculoService(null, null, null);
-        BigDecimal valor = new BigDecimal("1000.00");
-        BigDecimal taxa = new BigDecimal("0.01");
         short prazo = 2;
 
-        List<ParcelaDTO> parcelas = invokeCalcularPriceParcelas(service, valor, taxa, prazo);
+        List<ParcelaDTO> parcelas = invokeCalcularPriceParcelas(service, TEST_VALOR, TEST_TAXA, prazo);
 
         assertEquals(2, parcelas.size());
         assertEquals(1, parcelas.get(0).getNumero());
@@ -179,13 +202,11 @@ class SimulacaoCalculoServiceTest {
     @Test
     void calcularPriceParcelasZeroPrazoThrowsException() {
         SimulacaoCalculoService service = new SimulacaoCalculoService(null, null, null);
-        BigDecimal valor = new BigDecimal("1000.00");
-        BigDecimal taxa = new BigDecimal("0.01");
         short prazo = 0;
 
         assertThrows(ValorOuPrazoDesejadoInvalidoException.class, () -> {
             try {
-                invokeCalcularPriceParcelas(service, valor, taxa, prazo);
+                invokeCalcularPriceParcelas(service, TEST_VALOR, TEST_TAXA, prazo);
             } catch (Exception e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof ValorOuPrazoDesejadoInvalidoException) {
@@ -199,13 +220,11 @@ class SimulacaoCalculoServiceTest {
     @Test
     void calcularPriceParcelasNegativePrazoThrowsException() {
         SimulacaoCalculoService service = new SimulacaoCalculoService(null, null, null);
-        BigDecimal valor = new BigDecimal("1000.00");
-        BigDecimal taxa = new BigDecimal("0.01");
         short prazo = -1;
 
         assertThrows(ValorOuPrazoDesejadoInvalidoException.class, () -> {
             try {
-                invokeCalcularPriceParcelas(service, valor, taxa, prazo);
+                invokeCalcularPriceParcelas(service, TEST_VALOR, TEST_TAXA, prazo);
             } catch (Exception e) {
                 Throwable cause = e.getCause();
                 if (cause instanceof ValorOuPrazoDesejadoInvalidoException) {
@@ -214,5 +233,36 @@ class SimulacaoCalculoServiceTest {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    @Test
+    void getMinElapsedTimeIsUpdated() {
+        ProdutoRepository produtoRepository = mock(ProdutoRepository.class);
+        SimulacaoRepository simulacaoRepository = mock(SimulacaoRepository.class);
+        EventHubProducer eventHubProducer = mock(EventHubProducer.class);
+
+        Produto produto = Produto.builder()
+                .id(1)
+                .nome("Produto Teste")
+                .taxaJuros(TEST_TAXA)
+                .prazoMinimo((short) 1)
+                .prazoMaximo((short) 12)
+                .valorMinimo(PRODUTO_VALOR_MINIMO)
+                .valorMaximo(PRODUTO_VALOR_MAXIMO)
+                .build();
+        when(produtoRepository.findAll()).thenReturn(Collections.singletonList(produto));
+
+        SimulacaoCalculoService service = new SimulacaoCalculoService(produtoRepository, simulacaoRepository, eventHubProducer);
+
+        assertEquals(Long.MAX_VALUE, service.getMinElapsedTime());
+
+        SimulacaoRequestDTO request = new SimulacaoRequestDTO();
+        request.setValorDesejado(5000.0);
+        request.setPrazo(12);
+        service.simular(request);
+
+        long minElapsed = service.getMinElapsedTime();
+
+        assertTrue(minElapsed < Long.MAX_VALUE && minElapsed >= 0);
     }
 }
