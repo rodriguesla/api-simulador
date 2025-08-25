@@ -135,7 +135,7 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
 - Erros tratados: 400, 401, 403, 404, 500
 
 ## Coleção Postman
-- Coleção pronta disponível em `/docs/Hackaton 2025.postman_collection.json`
+- Coleção pronta disponível em `/docs/Hackaton2025.postman_collection.json`
 
 ## Métricas e Telemetria
 - Métricas expostas para Prometheus em `/actuator/prometheus`
