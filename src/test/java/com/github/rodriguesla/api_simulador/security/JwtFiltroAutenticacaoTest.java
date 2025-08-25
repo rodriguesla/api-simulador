@@ -1,5 +1,6 @@
 package com.github.rodriguesla.api_simulador.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,13 +31,15 @@ class JwtFiltroAutenticacaoTest {
     private JwtUtil jwtUtil;
     @Mock
     private FilterChain filterChain;
+    @Mock
+    private ObjectMapper objectMapper;
     @InjectMocks
     private JwtFiltroAutenticacao jwtFiltroAutenticacao;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        jwtFiltroAutenticacao = new JwtFiltroAutenticacao(jwtUtil);
+        jwtFiltroAutenticacao = new JwtFiltroAutenticacao(jwtUtil, objectMapper);
     }
 
     @Test
@@ -177,7 +180,7 @@ class JwtFiltroAutenticacaoTest {
 
     @Test
     void isExcludedPathShouldReturnFalseForNonExcludedPaths() throws Exception {
-        JwtFiltroAutenticacao filtro = new JwtFiltroAutenticacao(jwtUtil);
+        JwtFiltroAutenticacao filtro = new JwtFiltroAutenticacao(jwtUtil, objectMapper);
         var method = JwtFiltroAutenticacao.class.getDeclaredMethod("isExcludedPath", String.class);
         method.setAccessible(true);
         assertFalse((Boolean) method.invoke(filtro, API_TEST_PATH));
@@ -187,7 +190,7 @@ class JwtFiltroAutenticacaoTest {
 
     @Test
     void isExcludedPathShouldReturnTrueForExcludedPaths() throws Exception {
-        JwtFiltroAutenticacao filtro = new JwtFiltroAutenticacao(jwtUtil);
+        JwtFiltroAutenticacao filtro = new JwtFiltroAutenticacao(jwtUtil, objectMapper);
         var method = JwtFiltroAutenticacao.class.getDeclaredMethod("isExcludedPath", String.class);
         method.setAccessible(true);
         assertTrue((Boolean) method.invoke(filtro, AUTH_TOKEN_PATH));
@@ -195,5 +198,22 @@ class JwtFiltroAutenticacaoTest {
         assertTrue((Boolean) method.invoke(filtro, "/swagger-ui"));
         assertTrue((Boolean) method.invoke(filtro, "/v3/api-docs"));
         assertTrue((Boolean) method.invoke(filtro, "/actuator"));
+    }
+
+    @Test
+    void testErrorResponseFallbackJsonOnSerializationFailure() throws Exception {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.setRequestURI(API_TEST_PATH);
+        request.addHeader(AUTH_HEADER, "Bearer invalid.jwt.token");
+        when(jwtUtil.validateToken("invalid.jwt.token")).thenReturn(false);
+        doThrow(new RuntimeException("Serialization error")).when(objectMapper).writeValueAsString(any());
+
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        jwtFiltroAutenticacao.doFilterInternal(request, response, filterChain);
+        assertEquals(FORBIDDEN_STATUS, response.getStatus());
+        assertTrue(response.getContentAsString().contains("\"erro\":\"Proibido\""));
+        assertTrue(response.getContentAsString().contains("\"mensagem\":\"Token inválido ou expirado. Gere um novo token usando /auth/token.\""));
+        assertTrue(response.getContentAsString().contains("\"codigo\":403"));
+        verify(filterChain, never()).doFilter(request, response);
     }
 }

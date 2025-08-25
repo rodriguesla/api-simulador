@@ -22,6 +22,7 @@ import java.util.List;
 public class JwtFiltroAutenticacao extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final ObjectMapper objectMapper;
 
     private static final List<String> EXCLUDED_PATHS = Arrays.asList(
             "/auth/token",
@@ -71,12 +72,11 @@ public class JwtFiltroAutenticacao extends OncePerRequestFilter {
         erroResponse.setCodigo(403);
         erroResponse.setTimestamp(LocalDateTime.now());
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         try {
-            String jsonResponse = mapper.writeValueAsString(erroResponse);
+            String jsonResponse = objectMapper.writeValueAsString(erroResponse);
             response.getWriter().write(jsonResponse);
         } catch (Exception e) {
             response.getWriter().write("{\"erro\":\"Proibido\",\"mensagem\":\"" + message + "\",\"codigo\":403}");
