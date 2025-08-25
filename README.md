@@ -57,6 +57,8 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
 
 - http://54.207.33.166:8080
 
+  > **Importante:** O endereço IP público da API está configurado como variável no arquivo de ambiente do Postman (`/docs/HACK.postman_environment.json`), sob o nome `{{ec2-user}}`. Ao utilizar a coleção no Postman, todas as requisições usam `{{ec2-user}}` como base do endpoint. Para alterar o IP, basta modificar o valor da variável no ambiente, facilitando testes automatizados e integração sem necessidade de editar cada requisição manualmente.
+
   Qualquer pessoa pode acessar este endpoint, desde que as regras de segurança estejam configuradas corretamente na instância AWS/EC2. O endpoint público está incluído na coleção Postman disponível no projeto (`/docs/Hackaton2025.postman_collection.json`), facilitando testes automatizados e integração.
 
 ## Segurança e Autenticação JWT
@@ -148,8 +150,9 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
 - Exemplos de requisições e respostas documentados
 - Erros tratados: 400, 401, 403, 404, 500
 
-## Coleção Postman
+## Coleção e Variável Postman
 - Coleção pronta disponível em `/docs/Hackaton2025.postman_collection.json`
+- Variável de ambiente disponível em `/docs/HACK.postman_environment.json`
 
 ## Métricas e Telemetria
 - Métricas expostas para Prometheus em `/actuator/prometheus`
@@ -159,7 +162,7 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
 - Pipeline configurado no GitHub Actions para build e testes automáticos
 - Link: [Pipeline no GitHub](https://github.com/rodriguesla/api-simulador/actions)
 
-## Diagrama de Arquitetura !!!MELHORAR!!!
+## Diagrama de Arquitetura
 ![Diagrama de Arquitetura](docs/diagrama-arquitetura.png)
 
 ## Observações !!!A FAZER!!!
