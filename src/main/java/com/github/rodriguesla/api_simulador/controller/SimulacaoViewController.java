@@ -48,7 +48,7 @@ public class SimulacaoViewController {
 
     @GetMapping("/simulacoes-view")
     public String listarSimulacoes(Model model) {
-        SimulacaoListaResponseDTO simulacoes = simulacaoListaService.buscarSimulacoesLista(1, 200);
+        SimulacaoListaResponseDTO simulacoes = simulacaoListaService.buscarSimulacoesLista(0, 200);
         var formattedList = simulacoes.getRegistros().stream().map(simulacao -> Map.of(
             "idSimulacao", simulacao.getIdSimulacao(),
             "prazo", simulacao.getPrazo(),

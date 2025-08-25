@@ -15,6 +15,10 @@ class JwtUtilTest {
     private JwtUtil jwtUtil;
     private static final String TEST_USERNAME = "testuser";
     private static final String INVALID_TOKEN = "invalid.jwt.token";
+    private static final String USER1 = "user1";
+    private static final String USER2 = "user2";
+    private static final String ISSUER = "api-simulador";
+    private static final String AUDIENCE = "hackathon-2025";
 
     @BeforeEach
     void setUp() {
@@ -43,8 +47,8 @@ class JwtUtilTest {
         String token = jwtUtil.generateToken(TEST_USERNAME);
         Claims claims = jwtUtil.extractClaim(token, claims1 -> claims1);
 
-        assertEquals("api-simulador", claims.get("iss"));
-        assertEquals("hackathon-2025", claims.get("aud"));
+        assertEquals(ISSUER, claims.get("iss"));
+        assertEquals(AUDIENCE, claims.get("aud"));
         assertEquals(TEST_USERNAME, claims.getSubject());
     }
 
@@ -119,8 +123,8 @@ class JwtUtilTest {
 
     @Test
     void differentUsernamesShouldGenerateDifferentTokens() {
-        String user1 = "user1";
-        String user2 = "user2";
+        String user1 = USER1;
+        String user2 = USER2;
         String token1 = jwtUtil.generateToken(user1);
         String token2 = jwtUtil.generateToken(user2);
 
@@ -146,8 +150,8 @@ class JwtUtilTest {
         String issuer = jwtUtil.extractClaim(token, claims -> (String) claims.get("iss"));
         String audience = jwtUtil.extractClaim(token, claims -> (String) claims.get("aud"));
 
-        assertEquals("api-simulador", issuer);
-        assertEquals("hackathon-2025", audience);
+        assertEquals(ISSUER, issuer);
+        assertEquals(AUDIENCE, audience);
     }
 
     @Test

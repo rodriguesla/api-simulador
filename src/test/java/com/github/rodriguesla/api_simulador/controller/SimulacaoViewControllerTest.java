@@ -1,9 +1,6 @@
 package com.github.rodriguesla.api_simulador.controller;
 
-import com.github.rodriguesla.api_simulador.dto.SimulacaoListaResponseDTO;
-import com.github.rodriguesla.api_simulador.dto.SimulacaoRegistroDTO;
-import com.github.rodriguesla.api_simulador.dto.SimulacoesPorDiaResponseDTO;
-import com.github.rodriguesla.api_simulador.dto.TelemetriaResponseDTO;
+import com.github.rodriguesla.api_simulador.dto.*;
 import com.github.rodriguesla.api_simulador.service.SimulacaoListaService;
 import com.github.rodriguesla.api_simulador.service.SimulacaoPorDiaService;
 import com.github.rodriguesla.api_simulador.service.SimulacaoTelemetriaService;
@@ -50,16 +47,50 @@ class SimulacaoViewControllerTest {
     void listarSimulacoes_addsSimulacoesToModelAndReturnsView() {
         SimulacaoListaResponseDTO responseDTO = new SimulacaoListaResponseDTO();
         responseDTO.setRegistros(Arrays.asList(
-            SimulacaoRegistroDTO.builder().idSimulacao("sim1").build(),
-            SimulacaoRegistroDTO.builder().idSimulacao("sim2").build()
+            SimulacaoRegistroDTO.builder()
+                .idSimulacao("sim1")
+                .prazo(10)
+                .valorDesejado(new java.math.BigDecimal("100.00"))
+                .valorTotalParcelas(new java.math.BigDecimal("120.00"))
+                .valorSacPrice(ValorSacPriceDTO.builder()
+                    .sac(new java.math.BigDecimal("119.00"))
+                    .price(new java.math.BigDecimal("121.00"))
+                    .build())
+                .build(),
+            SimulacaoRegistroDTO.builder()
+                .idSimulacao("sim2")
+                .prazo(12)
+                .valorDesejado(new java.math.BigDecimal("200.00"))
+                .valorTotalParcelas(new java.math.BigDecimal("240.00"))
+                .valorSacPrice(ValorSacPriceDTO.builder()
+                    .sac(new java.math.BigDecimal("239.00"))
+                    .price(new java.math.BigDecimal("241.00"))
+                    .build())
+                .build()
         ));
-        when(simulacaoListaService.buscarSimulacoesLista(1, 200)).thenReturn(responseDTO);
+        when(simulacaoListaService.buscarSimulacoesLista(0, 200)).thenReturn(responseDTO);
 
+        org.mockito.ArgumentCaptor<Object> captor = org.mockito.ArgumentCaptor.forClass(Object.class);
         String view = controller.listarSimulacoes(model);
 
-        verify(simulacaoListaService).buscarSimulacoesLista(1, 200);
-        verify(model).addAttribute(eq(ATTR_SIMULACOES), eq(responseDTO.getRegistros()));
+        verify(simulacaoListaService).buscarSimulacoesLista(0, 200);
+        verify(model).addAttribute(eq(ATTR_SIMULACOES), captor.capture());
         assertEquals(VIEW_SIMULACOES, view);
+
+        Object value = captor.getValue();
+        assert value instanceof java.util.List;
+        java.util.List<?> formattedList = (java.util.List<?>) value;
+        assertEquals(2, formattedList.size());
+        for (Object item : formattedList) {
+            assert item instanceof java.util.Map;
+            java.util.Map<?,?> map = (java.util.Map<?,?>) item;
+            assert map.containsKey("idSimulacao");
+            assert map.containsKey("prazo");
+            assert map.containsKey("valorDesejado");
+            assert map.containsKey("valorTotalParcelas");
+            assert map.containsKey("valorSacPriceSac");
+            assert map.containsKey("valorSacPricePrice");
+        }
     }
 
     @Test

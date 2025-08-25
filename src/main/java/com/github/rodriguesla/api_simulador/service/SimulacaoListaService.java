@@ -41,10 +41,10 @@ public class SimulacaoListaService {
     public List<Simulacao> buscarSimulacoesPaginadas(int pagina, int qtdRegistrosPagina) {
         logger.info("Listando simulações: página={}, quantidade por página={}", pagina, qtdRegistrosPagina);
 
-        if (pagina < 1) pagina = 1;
+        if (pagina < 0) pagina = 0;
         if (qtdRegistrosPagina < 1) qtdRegistrosPagina = 20;
 
-        int offset = (pagina - 1) * qtdRegistrosPagina;
+        int offset = pagina * qtdRegistrosPagina;
         List<Simulacao> simulacoes = simulacaoRepository.findAll();
         List<Simulacao> paginadas = simulacoes.stream()
                 .skip(offset)

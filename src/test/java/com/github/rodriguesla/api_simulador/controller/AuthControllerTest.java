@@ -21,8 +21,11 @@ class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        authController = new AuthController(jwtUtil);
+        try (AutoCloseable mocks = MockitoAnnotations.openMocks(this)) {
+            authController = new AuthController(jwtUtil);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -32,13 +35,15 @@ class AuthControllerTest {
                 .password("2025")
                 .build();
         when(jwtUtil.generateToken("hackathon")).thenReturn("mocked-token");
-        ResponseEntity<AuthResponseDTO> response = authController.generateToken(request);
-        assertEquals(200, response.getStatusCodeValue());
+        ResponseEntity<?> response = authController.generateToken(request);
+        assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
-        assertEquals("mocked-token", response.getBody().getToken());
-        assertEquals("Bearer", response.getBody().getTipo());
-        assertEquals("hackathon", response.getBody().getUsuario());
-        assertEquals(3600, response.getBody().getExpiraEm());
+        assertInstanceOf(AuthResponseDTO.class, response.getBody());
+        AuthResponseDTO body = (AuthResponseDTO) response.getBody();
+        assertEquals("mocked-token", body.getToken());
+        assertEquals("Bearer", body.getTipo());
+        assertEquals("hackathon", body.getUsuario());
+        assertEquals(3600, body.getExpiraEm());
     }
 
     @Test
@@ -47,9 +52,14 @@ class AuthControllerTest {
                 .usuario("wrong")
                 .password("wrong")
                 .build();
-        ResponseEntity<AuthResponseDTO> response = authController.generateToken(request);
-        assertEquals(401, response.getStatusCodeValue());
-        assertNull(response.getBody());
+        ResponseEntity<?> response = authController.generateToken(request);
+        assertEquals(401, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertInstanceOf(com.github.rodriguesla.api_simulador.dto.ErroResponseDTO.class, response.getBody());
+        com.github.rodriguesla.api_simulador.dto.ErroResponseDTO error = (com.github.rodriguesla.api_simulador.dto.ErroResponseDTO) response.getBody();
+        assertEquals("NaoAutorizado", error.getErro());
+        assertEquals("Credenciais inválidas", error.getMensagem());
+        assertEquals(401, error.getCodigo());
+        assertNotNull(error.getTimestamp());
     }
 }
-

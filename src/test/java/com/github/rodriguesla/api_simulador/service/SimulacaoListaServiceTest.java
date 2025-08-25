@@ -27,10 +27,10 @@ class SimulacaoListaServiceTest {
 
         SimulacaoListaService service = new SimulacaoListaService(simulacaoRepository);
 
-        SimulacaoListaResponseDTO response = service.buscarSimulacoesLista(1, 2);
+        SimulacaoListaResponseDTO response = service.buscarSimulacoesLista(0, 2);
 
         assertNotNull(response);
-        assertEquals(1, response.getPagina());
+        assertEquals(0, response.getPagina());
         assertEquals(2, response.getQtdRegistros());
         assertEquals(2, response.getQtdRegistrosPagina());
         assertEquals(2, response.getRegistros().size());

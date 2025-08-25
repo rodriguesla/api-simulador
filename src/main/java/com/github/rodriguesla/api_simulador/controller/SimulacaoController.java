@@ -62,7 +62,7 @@ public class SimulacaoController {
     })
     @GetMapping
     public SimulacaoListaResponseDTO listarSimulacoes(
-            @RequestParam(defaultValue = "1") int pagina,
+            @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "200") int qtdRegistrosPagina) {
         return simulacaoListaService.buscarSimulacoesLista(pagina, qtdRegistrosPagina);
     }

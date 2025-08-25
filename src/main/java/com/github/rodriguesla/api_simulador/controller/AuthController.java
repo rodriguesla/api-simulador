@@ -35,10 +35,15 @@ public class AuthController {
         @ApiResponse(responseCode = "401", description = "Credenciais inválidas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class)))
     })
     @PostMapping("/token")
-    public ResponseEntity<AuthResponseDTO> generateToken(@RequestBody AuthRequestDTO authRequest) {
+    public ResponseEntity<?> generateToken(@RequestBody AuthRequestDTO authRequest) {
 
         if (!DEMO_USERNAME.equals(authRequest.getUsuario()) || !DEMO_PASSWORD.equals(authRequest.getPassword())) {
-            return ResponseEntity.status(401).build();
+            ErroResponseDTO error = new ErroResponseDTO();
+            error.setTimestamp(java.time.LocalDateTime.now());
+            error.setErro("NaoAutorizado");
+            error.setMensagem("Credenciais inválidas");
+            error.setCodigo(401);
+            return ResponseEntity.status(401).body(error);
         }
 
         String token = jwtUtil.generateToken(authRequest.getUsuario());

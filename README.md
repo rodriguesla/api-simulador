@@ -27,13 +27,13 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
 
 ## Como rodar o projeto
 1. **Pré-requisitos:**
-   - Docker e Docker Compose instalados
-   - JDK 21+
-   - Maven
+    - Docker e Docker Compose instalados
+    - JDK 21+
+    - Maven
 2. **Configuração:**
-   - Variáveis de ambiente no já estipuladas no `application.properties` para acesso ao SQL Server e EventHub
+    - Variáveis de ambiente no já estipuladas no `application.properties` para acesso ao SQL Server e EventHub
 3. **Execução via script para criar o package e rodar o docker-compose:**
-   - Windows: 
+    - Windows:
    ```bash
    start.bat
    ```
@@ -47,7 +47,7 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
    mvn clean package
    docker-compose up --build
    ```
-   - A API estará disponível em `http://localhost:8080`
+    - A API estará disponível em `http://localhost:8080`
 5. **Execução local:**
    ```bash
    mvn spring-boot:run
@@ -57,7 +57,7 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
 
 - http://54.207.33.166:8080
 
-   Qualquer pessoa pode acessar este endpoint, desde que as regras de segurança estejam configuradas corretamente na instância AWS/EC2. O endpoint público está incluído na coleção Postman disponível no projeto (`/docs/Hackaton2025.postman_collection.json`), facilitando testes automatizados e integração.
+  Qualquer pessoa pode acessar este endpoint, desde que as regras de segurança estejam configuradas corretamente na instância AWS/EC2. O endpoint público está incluído na coleção Postman disponível no projeto (`/docs/Hackaton2025.postman_collection.json`), facilitando testes automatizados e integração.
 
 ## Segurança e Autenticação JWT
 A partir desta versão, todos os endpoints protegidos exigem autenticação via token JWT. Para acessar os recursos, siga o fluxo abaixo:
@@ -81,6 +81,7 @@ A partir desta versão, todos os endpoints protegidos exigem autenticação via 
     }
     ```
   - Se as credenciais estiverem incorretas, será retornado HTTP 401.
+  
 
 - **Utilizar o Token nos Endpoints Protegidos:**
   - Adicione o header `Authorization` em todas as requisições:
@@ -88,6 +89,7 @@ A partir desta versão, todos os endpoints protegidos exigem autenticação via 
     Authorization: Bearer <seu_token_jwt>
     ```
   - Sem o token ou com token inválido, a API retorna HTTP 403 e mensagem de erro.
+
 
 - **Endpoints públicos:**
   - O endpoint `/auth/token` não exige autenticação.
@@ -143,10 +145,10 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
 - Pipeline configurado no GitHub Actions para build e testes automáticos
 - Link: [Pipeline no GitHub](https://github.com/rodriguesla/api-simulador/actions)
 
-## Diagrama de Arquitetura
+## Diagrama de Arquitetura !!!MELHORAR!!!
 ![Diagrama de Arquitetura](docs/diagrama-arquitetura.png)
 
-## Observações
+## Observações !!!A FAZER!!!
 - Estratégias de cache, circuit break e rate limit podem ser implementadas conforme necessidade
 - Auditoria de operações disponível
 - Resultados de teste de carga com K6/JMeter disponíveis em `/docs/tests`
