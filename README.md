@@ -97,10 +97,11 @@ A partir desta versão, todos os endpoints protegidos exigem autenticação via 
 
 ## Endpoints da API
 
+- **POST /auth/token**: Gera token JWT para autenticação
 - **POST /simulacoes**: Realiza uma simulação de crédito
-- **GET /simulacoes**: Lista todas as simulações realizadas
-- **GET /simulacoes/por-dia?data=**: Retorna valores simulados por produto em cada dia
-- **GET /simulacoes/telemetria**: Retorna dados de telemetria
+- **GET  /simulacoes**: Lista todas as simulações realizadas
+- **GET  /simulacoes/por-dia?data=**: Retorna valores simulados por produto em cada dia
+- **GET  /simulacoes/telemetria**: Retorna dados de telemetria
 
 ## Visualização dos Dados via Navegador
 Além do consumo dos endpoints via API, é possível visualizar os dados diretamente no navegador utilizando templates Thymeleaf, proporcionando uma experiência visual mais clara e detalhada das respostas.
