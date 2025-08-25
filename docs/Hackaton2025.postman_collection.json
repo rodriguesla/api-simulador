@@ -8,13 +8,62 @@
 	},
 	"item": [
 		{
+			"name": "Gerar Token de Autorização",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Testa se foi bem sucedido\r",
+							"pm.test(\"Token generation successful\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// Extrai a reposta em uma variavel\r",
+							"if (pm.response.code === 200) {\r",
+							"    const responseJson = pm.response.json();\r",
+							"    const token = responseJson.token;\r",
+							"    \r",
+							"    // Seta nas variaveis de ambiente\r",
+							"    pm.environment.set(\"bearer_token\", token);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"usuario\": \"hackathon\",\r\n    \"password\": \"2025\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{localHost}}/auth/token"
+			},
+			"response": []
+		},
+		{
 			"name": "Realiza uma simulação de crédito",
 			"event": [
 				{
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"// Product definitions\r",
+							"// Definicoes do produto\r",
 							"const products = [\r",
 							"  {\r",
 							"    id: 1,\r",
@@ -46,14 +95,14 @@
 							"  }\r",
 							"];\r",
 							"\r",
-							"// Pick a random product\r",
+							"// Pegue um produto qualquer\r",
 							"const product = products[Math.floor(Math.random() * products.length)];\r",
 							"\r",
-							"// Generate random prazo and valorDesejado within product limits\r",
+							"// Gerar prazo e valorDesejado dentro dos limites do produto\r",
 							"const prazo = Math.floor(Math.random() * (product.maxPrazo - product.minPrazo + 1)) + product.minPrazo;\r",
 							"const valorDesejado = (Math.random() * (product.maxValor - product.minValor) + product.minValor).toFixed(2);\r",
 							"\r",
-							"// Set variables for request body\r",
+							"// Setar variaveis para a resposta\r",
 							"pm.environment.set(\"prazo\", prazo);\r",
 							"pm.environment.set(\"valorDesejado\", valorDesejado);"
 						],
@@ -73,6 +122,12 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{bearer_token}}"
+					}
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -94,6 +149,12 @@
 				"disableBodyPruning": true
 			},
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{bearer_token}}"
+					}
+				},
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -121,7 +182,17 @@
 							"const mm = String(today.getMonth() + 1).padStart(2, '0');\r",
 							"const dd = String(today.getDate()).padStart(2, '0');\r",
 							"const formattedDate = `${yyyy}-${mm}-${dd}`;\r",
-							"pm.variables.set('data', formattedDate); // Use pm.environment.set or pm.collectionVariables.set if needed"
+							"pm.environment.set('data', formattedDate);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -132,6 +203,12 @@
 				"disableBodyPruning": true
 			},
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{bearer_token}}"
+					}
+				},
 				"method": "GET",
 				"header": [],
 				"body": {
@@ -168,6 +245,12 @@
 				"disableBodyPruning": true
 			},
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "{{bearer_token}}"
+					}
+				},
 				"method": "GET",
 				"header": [],
 				"body": {
