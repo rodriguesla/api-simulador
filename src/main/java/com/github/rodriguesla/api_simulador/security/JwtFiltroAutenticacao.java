@@ -34,7 +34,8 @@ public class JwtFiltroAutenticacao extends OncePerRequestFilter {
             "/telemetria-view",
             "/static/css",
             "/css",
-            "/favicon.ico"
+            "/favicon.ico",
+            "/home"
     );
 
     @Override

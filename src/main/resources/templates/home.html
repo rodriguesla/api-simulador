@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Menu de Visualização</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body>
+    <h1>Menu de Visualização</h1>
+    <div class="menu-container">
+        <button class="menu-btn" onclick="window.open('/simulacoes-view', '_blank')">📋 Lista de Simulações</button>
+        <button class="menu-btn" onclick="window.open('/simulacoes-por-dia-view', '_blank')">📅 Simulações por Dia</button>
+        <button class="menu-btn" onclick="window.open('/telemetria-view', '_blank')">📊 Telemetria</button>
+    </div>
+</body>
+</html>

@@ -17,7 +17,7 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
 ```
 [Usuário/Postman] --> [API Simulador] --> [Banco SQL Server]
                                  |--> [EventHub]
-                                 |--> [Banco Local]
+                                 |--> [Banco Local H2]
 ```
 - API RESTful documentada via Swagger
 - Integração com SQL Server para consulta de produtos
@@ -145,6 +145,26 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
     ```
   - A visualização dos testes pode ser feita através do acesso na pasta `/docs/newman-report.html` após a execução do script.
 
+### Testes de carga (K6)
+
+- Os testes de carga foram realizados utilizando a ferramenta K6, simulando 20 usuários virtuais (VUs) durante 60 segundos, acessando todos os principais endpoints da API.
+- O script de teste está disponível em `/docs/tests/k6/simulacao-test.js` e o resultado completo em `/docs/tests/simulacao-test-summary.json`.
+
+**Resumo dos resultados:**
+
+| Métrica                       | Valor         |
+|-------------------------------|--------------|
+| Usuários Virtuais (VUs)       | 20           |
+| Duração do teste              | 60 segundos  |
+| Total de requisições          | 3448         |
+| Endpoints testados            | /simulacoes (POST, GET), /simulacoes/por-dia, /simulacoes/telemetria |
+| Sucesso nas requisições       | 100%         |
+| Falhas nas requisições        | 0            |
+| Tempo médio de resposta       | 101 ms       |
+
+- Todos os endpoints responderam corretamente (HTTP 200) durante o teste de carga, sem falhas ou erros.
+- O resultado detalhado pode ser consultado no arquivo `/docs/tests/simulacao-test-summary.json`.
+
 ## Documentação da API
 - Swagger disponível em: `http://localhost:8080/swagger-ui.html`
 - Exemplos de requisições e respostas documentados
@@ -165,10 +185,8 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
 ## Diagrama de Arquitetura
 ![Diagrama de Arquitetura](docs/diagrama-arquitetura.png)
 
-## Observações !!!A FAZER!!!
-- Estratégias de cache, circuit break e rate limit podem ser implementadas conforme necessidade
+## Observações !!! A FAZER !!!
 - Auditoria de operações disponível
-- Resultados de teste de carga com K6/JMeter disponíveis em `/docs/tests`
 
 ## Contato
 - Desenvolvedor: [Luciano Aymone Rodrigues]

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Erro</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-message">
+        <h2 th:text="${erro}">Erro</h2>
+        <p th:text="${mensagem}">Mensagem de erro</p>
+        <p class="error-details">
+            <strong>Código:</strong> <span th:text="${codigo}">404</span><br>
+            <strong>Horário:</strong> <span th:text="${timestamp}">Data/Hora</span>
+        </p>
+    </div>
+</div>
+</body>
+</html>
