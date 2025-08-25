@@ -55,7 +55,7 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
 6. **Endpoint Público:**
    A API está disponível publicamente em uma instância EC2 da AWS, configurada para acesso externo via IP público. O ambiente foi provisionado e configurado para garantir segurança e disponibilidade.
 
-- http://54.207.33.166:8080
+- http://18.229.125.164:8080
 
   > **Importante:** O endereço IP público da API está configurado como variável no arquivo de ambiente do Postman (`/docs/HACK.postman_environment.json`), sob o nome `{{ec2-user}}`. Ao utilizar a coleção no Postman, todas as requisições usam `{{ec2-user}}` como base do endpoint. Para alterar o IP, basta modificar o valor da variável no ambiente, facilitando testes automatizados e integração sem necessidade de editar cada requisição manualmente.
 
