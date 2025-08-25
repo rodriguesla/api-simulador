@@ -97,7 +97,7 @@ public class SimulacaoController {
         @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class)))
     })
     @GetMapping("/telemetria")
-    public ResponseEntity<TelemetriaResponseDTO> telemetria(@RequestParam Map<String, String> params) {
+    public ResponseEntity<TelemetriaResponseDTO> telemetria(@RequestParam(required = false) Map<String, String> params) {
         if (params != null && !params.isEmpty()) {
             throw new RequisicaoInvalidaException("Este endpoint não aceita parâmetros. Remova os parâmetros da requisição.");
         }

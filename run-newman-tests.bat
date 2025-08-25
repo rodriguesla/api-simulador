@@ -1,5 +1,10 @@
 @echo off
-REM Run Newman tests with Postman collection and environment
+REM
+taskkill /IM java.exe /F
+REM
+start "" cmd /c start-test.bat
+REM
+timeout /t 30
 
 set COLLECTION=docs\TestesAutomatizados.postman_collection.json
 set ENVIRONMENT=docs\HACK.postman_environment.json

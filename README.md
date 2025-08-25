@@ -127,7 +127,20 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
   ```
   Relatório gerado em `/target/site/jacoco/index.html`
 
-- **Cobertura de testes:**
+- **Testes automatizados com Postman:**
+  - A coleção de testes automatizados está disponível em `/docs/TestesAutomatizados.postman_collection.json`.
+  - Para executar corretamente os testes, é necessário importar também o arquivo de ambiente `/docs/HACK.postman_environment.json` no Postman.
+  - Recomenda-se utilizar o Runner do Postman para rodar a coleção `TestesAutomatizados` antes de realizar qualquer requisição manual por meio da coleção principal.
+  - Alternativamente, é possível executar todos os testes automatizados via terminal utilizando o script `run-newman-tests.bat`.
+  - Caso o Newman não esteja instalado, utilize o comando abaixo para instalar globalmente:
+    ```bash
+    npm install -g newman
+    ```
+  - Para visualizar o relatório dos testes automatizados padrão, instale:
+    ```bash
+    npm install -g newman-reporter-html
+    ```
+  - A visualização dos testes pode ser feita através do acesso na pasta `/docs/newman-report.html` após a execução do script.
 
 ## Documentação da API
 - Swagger disponível em: `http://localhost:8080/swagger-ui.html`
