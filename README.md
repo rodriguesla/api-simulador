@@ -108,9 +108,12 @@ A partir desta versão, todos os endpoints protegidos exigem autenticação via 
 ## Visualização dos Dados via Navegador
 Além do consumo dos endpoints via API, é possível visualizar os dados diretamente no navegador utilizando templates Thymeleaf, proporcionando uma experiência visual mais clara e detalhada das respostas.
 
+A navegação principal agora começa pela página `/home`, que apresenta um menu com botões para acessar as principais visualizações do sistema. Recomenda-se iniciar por `/home` para uma experiência mais intuitiva, podendo acessar facilmente as demais páginas de visualização.
+
 Para uma melhor experiência visual, recomenda-se instalar uma extensão ou servidor de linguagem CSS no seu editor, garantindo que os estilos dos templates sejam renderizados corretamente durante o desenvolvimento.
 
 Os principais endpoints de visualização são:
+- `/home`: Menu principal de navegação para as visualizações
 - `/simulacoes-view`: Lista de simulações realizadas
 - `/simulacoes-por-dia-view`: Simulações agrupadas por dia
 - `/telemetria-view`: Dados de telemetria e métricas da API
@@ -184,9 +187,6 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
 
 ## Diagrama de Arquitetura
 ![Diagrama de Arquitetura](docs/diagrama-arquitetura.png)
-
-## Observações !!! A FAZER !!!
-- Auditoria de operações disponível
 
 ## Contato
 - Desenvolvedor: [Luciano Aymone Rodrigues]

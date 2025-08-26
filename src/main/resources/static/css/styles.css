@@ -56,21 +56,24 @@ tr:hover {
     color: #fff;
     border: none;
     border-radius: 8px;
-    padding: 24px 48px;
+    padding: 0 48px;
     font-size: 1.3em;
     font-weight: 600;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0,0,0,0.10);
     transition: background 0.2s, transform 0.2s;
     outline: none;
-    min-width: 220px;
+    width: 260px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     letter-spacing: 0.5px;
     text-align: center;
 }
 
 .menu-btn:hover, .menu-btn:focus {
     background: #0056b3;
-    transform: translateY(-2px) scale(1.04);
 }
 
 .menu-btn:active {
@@ -93,6 +96,14 @@ tr:hover {
     text-align: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     border-left: 5px solid #dc3545;
+    width: 400px;
+    min-height: 220px;
+    max-height: 340px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .error-message h2 {
@@ -129,8 +140,18 @@ tr:hover {
         margin: 30px 0;
     }
     .menu-btn {
-        padding: 18px 10px;
+        padding: 0 10px;
         font-size: 1.1em;
-        min-width: 180px;
+        width: 180px;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .error-message {
+        width: 95vw;
+        min-height: 180px;
+        max-height: 260px;
+        padding: 18px;
     }
 }
