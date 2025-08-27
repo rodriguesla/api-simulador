@@ -216,7 +216,7 @@ Essa visualização facilita a análise dos resultados dos testes de carga, torn
 
 Veja uma demonstração em vídeo do funcionamento completo do projeto, incluindo principais funcionalidades, navegação pelas páginas, exemplos de uso da API e visualização dos resultados.
 
-[Assista à demonstração aqui](LINK_DO_VIDEO_AQUI)
+[Assista à demonstração aqui](https://youtu.be/IzIGoH7P_WI)
 
 ## Contato
 - Desenvolvedor: [Luciano Aymone Rodrigues]
