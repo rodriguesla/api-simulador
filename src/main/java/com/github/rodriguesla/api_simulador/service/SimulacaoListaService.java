@@ -42,7 +42,7 @@ public class SimulacaoListaService {
         logger.info("Listando simulações: página={}, quantidade por página={}", pagina, qtdRegistrosPagina);
 
         if (pagina < 0) pagina = 0;
-        if (qtdRegistrosPagina < 1) qtdRegistrosPagina = 20;
+        if (qtdRegistrosPagina < 1) qtdRegistrosPagina = 200;
 
         int offset = pagina * qtdRegistrosPagina;
         List<Simulacao> simulacoes = simulacaoRepository.findAll();

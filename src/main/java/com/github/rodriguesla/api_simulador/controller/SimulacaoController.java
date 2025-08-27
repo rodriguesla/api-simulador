@@ -65,7 +65,7 @@ public class SimulacaoController {
     @GetMapping
     public ResponseEntity<SimulacaoListaResponseDTO> listar(
             @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "20") int qtdRegistrosPagina) {
+            @RequestParam(defaultValue = "200") int qtdRegistrosPagina) {
         SimulacaoListaResponseDTO lista = simulacaoListaService.buscarSimulacoesLista(pagina, qtdRegistrosPagina);
         return ResponseEntity.ok(lista);
     }
