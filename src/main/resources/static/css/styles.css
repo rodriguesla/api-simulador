@@ -80,6 +80,36 @@ tr:hover {
     background: #003d80;
 }
 
+.back-btn {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0 28px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    transition: background 0.2s;
+    outline: none;
+    width: 160px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.5px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.back-btn:hover, .back-btn:focus {
+    background: #0056b3;
+}
+
+.back-btn:active {
+    background: #003d80;
+}
+
 .error-container {
     display: flex;
     justify-content: center;
@@ -147,6 +177,12 @@ tr:hover {
         display: flex;
         align-items: center;
         justify-content: center;
+    }
+    .back-btn {
+        padding: 0 8px;
+        font-size: 0.95em;
+        width: 120px;
+        height: 36px;
     }
     .error-message {
         width: 95vw;

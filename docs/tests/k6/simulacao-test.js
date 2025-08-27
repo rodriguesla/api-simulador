@@ -7,7 +7,8 @@ export let options = {
 };
 
 const BASE_URL = 'http://localhost:8080';
-const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJoYWNrYXRob24tMjAyNSIsImlzcyI6ImFwaS1zaW11bGFkb3IiLCJzdWIiOiJoYWNrYXRob24iLCJpYXQiOjE3NTYxNjIyMDMsImV4cCI6MTc1NjE2NTgwM30.MwM4Us9cAaCWz11MISPuz0H9mFoe-SClyPe8EwnooVc';
+//Insira o token JWT válido aqui
+const TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJoYWNrYXRob24tMjAyNSIsImlzcyI6ImFwaS1zaW11bGFkb3IiLCJzdWIiOiJoYWNrYXRob24iLCJpYXQiOjE3NTYyMjA2MTEsImV4cCI6MTc1NjIyNDIxMX0.hSe5T3gkrtYDlk0uHGwegWFDw7TNiMgE-UROFVaw37U';
 
 const authHeader = {
   headers: {
@@ -31,7 +32,8 @@ export default function () {
   check(listaRes, { 'listarSimulacoes status is 200': (r) => r.status === 200 });
 
   // /simulacoes/por-dia GET
-  let porDiaRes = http.get(`${BASE_URL}/simulacoes/por-dia?data=2025-08-25`, authHeader);
+  //Insira a data de hoje, exemplo: 2025-08-25
+  let porDiaRes = http.get(`${BASE_URL}/simulacoes/por-dia?data=2025-08-26`, authHeader);
   check(porDiaRes, { 'simulacoesPorDia status is 200': (r) => r.status === 200 });
 
   // /simulacoes/telemetria GET
