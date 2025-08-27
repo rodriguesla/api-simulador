@@ -32,6 +32,7 @@ public class JwtFiltroAutenticacao extends OncePerRequestFilter {
             "/simulacoes-view",
             "/simulacoes-por-dia-view",
             "/telemetria-view",
+            "/auditoria-view",
             "/static/css",
             "/css",
             "/favicon.ico",

@@ -14,9 +14,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -61,10 +63,11 @@ public class SimulacaoController {
         @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErroResponseDTO.class)))
     })
     @GetMapping
-    public SimulacaoListaResponseDTO listarSimulacoes(
+    public ResponseEntity<SimulacaoListaResponseDTO> listar(
             @RequestParam(defaultValue = "0") int pagina,
-            @RequestParam(defaultValue = "200") int qtdRegistrosPagina) {
-        return simulacaoListaService.buscarSimulacoesLista(pagina, qtdRegistrosPagina);
+            @RequestParam(defaultValue = "20") int qtdRegistrosPagina) {
+        SimulacaoListaResponseDTO lista = simulacaoListaService.buscarSimulacoesLista(pagina, qtdRegistrosPagina);
+        return ResponseEntity.ok(lista);
     }
 
     @Operation(summary = "Retorna valores simulados por produto em cada dia")

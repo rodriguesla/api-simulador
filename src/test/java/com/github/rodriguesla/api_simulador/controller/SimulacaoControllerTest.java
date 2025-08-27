@@ -78,7 +78,8 @@ class SimulacaoControllerTest {
 
         when(simulacaoListaService.buscarSimulacoesLista(pagina, qtdRegistrosPagina)).thenReturn(mockResponse);
 
-        SimulacaoListaResponseDTO response = controller.listarSimulacoes(pagina, qtdRegistrosPagina);
+        ResponseEntity<SimulacaoListaResponseDTO> responseEntity = controller.listar(pagina, qtdRegistrosPagina);
+        SimulacaoListaResponseDTO response = responseEntity.getBody();
 
         assertEquals(pagina, response.getPagina());
         assertEquals(10, response.getQtdRegistros());

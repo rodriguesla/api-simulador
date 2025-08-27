@@ -16,7 +16,10 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableJpaRepositories(
-        basePackages = "com.github.rodriguesla.api_simulador.entities.simulacao.repository",
+        basePackages = {
+                "com.github.rodriguesla.api_simulador.entities.simulacao.repository",
+                "com.github.rodriguesla.api_simulador.entities.auditoria.repository"
+        },
         entityManagerFactoryRef = "simulacaoEntityManager",
         transactionManagerRef = "simulacaoTransactionManager"
 )
@@ -32,7 +35,10 @@ public class H2DbConfig {
             EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(simulacaoDataSource())
-                .packages("com.github.rodriguesla.api_simulador.entities.simulacao.model")
+                .packages(
+                    "com.github.rodriguesla.api_simulador.entities.simulacao.model",
+                    "com.github.rodriguesla.api_simulador.entities.auditoria.model"
+                )
                 .persistenceUnit("simulacao")
                 .build();
     }

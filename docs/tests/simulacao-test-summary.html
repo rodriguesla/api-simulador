@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Resumo dos Testes de Simulação</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 0; padding: 0; }
+        h1 { color: #333; text-align: center; margin-top: 30px; }
+        .section { margin: 30px auto; max-width: 900px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 30px; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ccc; padding: 10px 16px; text-align: left; }
+        th { background: #007bff; color: #fff; }
+        tr:nth-child(even) { background: #f2f2f2; }
+        .pass { color: #28a745; font-weight: bold; }
+        .fail { color: #dc3545; font-weight: bold; }
+        .metric-key { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Resumo dos Testes de Simulação</h1>
+    <div class="section">
+        <h2>Métricas</h2>
+        <table id="metrics-table">
+            <thead>
+                <tr><th>Métrica</th><th>Valor</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="section">
+        <h2>Checks</h2>
+        <table id="checks-table">
+            <thead>
+                <tr><th>Check</th><th>Passes</th><th>Fails</th><th>Status</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <script>
+    fetch('simulacao-test-summary.json')
+        .then(response => response.json())
+        .then(data => {
+            // Metrics
+            const metricsTable = document.querySelector('#metrics-table tbody');
+            for (const [key, value] of Object.entries(data.metrics)) {
+                let displayValue = value;
+                if (typeof value === 'object' && value !== null) {
+                    displayValue = Object.entries(value).map(([k, v]) => `${k}: ${v}`).join(', ');
+                }
+                const row = document.createElement('tr');
+                row.innerHTML = `<td class="metric-key">${key}</td><td>${displayValue}</td>`;
+                metricsTable.appendChild(row);
+            }
+            // Checks
+            const checksTable = document.querySelector('#checks-table tbody');
+            const checks = data.root_group.checks;
+            for (const [key, check] of Object.entries(checks)) {
+                const status = check.fails === 0 ? '<span class="pass">OK</span>' : '<span class="fail">FALHA</span>';
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${check.name}</td><td>${check.passes}</td><td>${check.fails}</td><td>${status}</td>`;
+                checksTable.appendChild(row);
+            }
+        })
+        .catch(err => {
+            document.body.innerHTML += '<div style="color:red;text-align:center;">Erro ao carregar o arquivo de resumo dos testes.</div>';
+        });
+    </script>
+</body>
+</html>
+

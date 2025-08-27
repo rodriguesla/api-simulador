@@ -25,32 +25,46 @@ Este projeto é uma API desenvolvida em Spring Boot para simulação de crédito
 - Envio de eventos para EventHub
 - Métricas expostas para Prometheus
 
+## Auditoria de Requisições
+O sistema possui funcionalidade de auditoria automática para todas requisições relevantes feitas à API. As informações registradas incluem:
+- Usuário (não foi implementado sistema de autenticação, somente uma coluna para demonstração)
+- Endpoint acessado
+- Dados da requisição (para POST/PUT)
+- Status da resposta
+- Endereço IP
+- Mensagem de erro (caso ocorra)
+- Data/hora
+
+A auditoria pode ser visualizada acessando a página `/auditoria-view`.
+
+**Observações:**
+- Requisições a recursos estáticos (CSS, JS, imagens) e à própria página de auditoria não são registradas.
+- Caso não existam registros de auditoria, será exibida a página de erro.
+- O log de auditoria pode impactar a performance em cenários de alto volume. Para otimizações, consulte a documentação ou desabilite conforme necessário.
+
 ## Como rodar o projeto
 1. **Pré-requisitos:**
     - Docker e Docker Compose instalados
     - JDK 21+
     - Maven
 2. **Configuração:**
-    - Variáveis de ambiente no já estipuladas no `application.properties` para acesso ao SQL Server e EventHub
-3. **Execução via script para criar o package e rodar o docker-compose:**
-    - Windows:
+    - Variáveis de ambiente já estipuladas no `application.properties` para acesso ao SQL Server e EventHub
+3. **Execução via Docker Compose (recomendado):**
+   O Dockerfile está configurado para construir o JAR automaticamente usando multi-stage build. Não é necessário rodar scripts ou criar o package manualmente.
    ```bash
-   start.bat
+   docker compose up --build
    ```
-    - Linux/Mac:
-   ```bash
-   chmod +x start.sh
-   ./start.sh
-   ```
-4. **Execução via Docker Compose sem rodar o script:**
-   ```bash
-   mvn clean package
-   docker-compose up --build
-   ```
-    - A API estará disponível em `http://localhost:8080`
-5. **Execução local:**
+   - A API estará disponível em `http://localhost:8080`
+4. **Execução local:**
    ```bash
    mvn spring-boot:run
+   ```
+5. **Execução manual do build (opcional):**
+   Caso queira criar o JAR manualmente:
+   ```bash
+   mvn clean package
+   docker build -t api-simulador .
+   docker run -p 8080:8080 api-simulador
    ```
 6. **Endpoint Público:**
    A API está disponível publicamente em uma instância EC2 da AWS, configurada para acesso externo via IP público. O ambiente foi provisionado e configurado para garantir segurança e disponibilidade.
@@ -105,7 +119,7 @@ A partir desta versão, todos os endpoints protegidos exigem autenticação via 
 - **GET  /simulacoes/por-dia?data=**: Retorna valores simulados por produto em cada dia
 - **GET  /simulacoes/telemetria**: Retorna dados de telemetria
 
-## Visualização dos Dados via Navegador
+## Visualização dos Dados via Navegador (preferivelmente o Brave ou Chrome)
 Além do consumo dos endpoints via API, é possível visualizar os dados diretamente no navegador utilizando templates Thymeleaf, proporcionando uma experiência visual mais clara e detalhada das respostas.
 
 A navegação principal agora começa pela página `/home`, que apresenta um menu com botões para acessar as principais visualizações do sistema. Recomenda-se iniciar por `/home` para uma experiência mais intuitiva, podendo acessar facilmente as demais páginas de visualização.
@@ -159,14 +173,24 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
 |-------------------------------|--------------|
 | Usuários Virtuais (VUs)       | 20           |
 | Duração do teste              | 60 segundos  |
-| Total de requisições          | 3448         |
+| Total de requisições          | 3608         |
 | Endpoints testados            | /simulacoes (POST, GET), /simulacoes/por-dia, /simulacoes/telemetria |
 | Sucesso nas requisições       | 100%         |
 | Falhas nas requisições        | 0            |
-| Tempo médio de resposta       | 101 ms       |
+| Tempo médio de resposta       | 86 ms        |
 
 - Todos os endpoints responderam corretamente (HTTP 200) durante o teste de carga, sem falhas ou erros.
 - O resultado detalhado pode ser consultado no arquivo `/docs/tests/simulacao-test-summary.json`.
+
+### Visualização dos resultados dos testes de carga (K6)
+
+Após rodar o teste de carga com o K6, o resumo gerado em `/docs/tests/simulacao-test-summary.json` pode ser visualizado de forma amigável em HTML:
+
+- Basta abrir o arquivo `/docs/tests/simulacao-test-summary.html` no navegador.
+- A página carrega automaticamente o JSON mais recente e exibe as métricas e checks em tabelas organizadas.
+- Sempre que o teste for executado novamente e o JSON for atualizado, a visualização HTML refletirá os novos resultados ao ser recarregada.
+
+Essa visualização facilita a análise dos resultados dos testes de carga, tornando-os mais acessíveis e compreensíveis para todos os envolvidos no projeto.
 
 ## Documentação da API
 - Swagger disponível em: `http://localhost:8080/swagger-ui.html`
@@ -188,6 +212,14 @@ Esses endpoints utilizam templates HTML para exibir as informações de forma or
 ## Diagrama de Arquitetura
 ![Diagrama de Arquitetura](docs/diagrama-arquitetura.png)
 
+## Demonstração em Vídeo
+
+Veja uma demonstração em vídeo do funcionamento completo do projeto, incluindo principais funcionalidades, navegação pelas páginas, exemplos de uso da API e visualização dos resultados.
+
+[Assista à demonstração aqui](LINK_DO_VIDEO_AQUI)
+
 ## Contato
 - Desenvolvedor: [Luciano Aymone Rodrigues]
 - Email: luciano.a.rodrigues@caixa.gov.br
+
+
